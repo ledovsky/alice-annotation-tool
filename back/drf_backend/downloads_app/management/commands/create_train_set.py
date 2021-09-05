@@ -10,6 +10,7 @@ from django.conf import settings
 
 from data_app.models import Dataset, ICAComponent, ICAData, Annotation
 from data_app.downloads import create_ics, create_annotations_raw, create_components_data_iter
+from downloads_app.utils import get_dirname
 
 
 class Command(BaseCommand):
@@ -20,15 +21,23 @@ class Command(BaseCommand):
             '--dataset',
             action='store',
             required=True,
-            help='',
+            help='Dataset short name',
+        )
+        parser.add_argument(
+            '--ds-version',
+            action='store',
+            required=False,
+            default=None,
+            help='Version of the dataset',
         )
 
     def handle(self, *args, **options):
 
         dataset_short_name = options['dataset']
 
-        dir_name = 'dataset_' + dataset_short_name
+        dir_name = get_dirname(dataset_short_name, options['ds_version'])
         out_dir = join(settings.OUT_DIR, dir_name)
+
         if exists(out_dir):
             shutil.rmtree(out_dir, ignore_errors=True)
         os.mkdir(out_dir)

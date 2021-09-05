@@ -27,20 +27,44 @@ def create_ics(dataset_short_name):
 
 def create_annotations_raw(dataset_short_name):
     rows = []
+    dataset = Dataset.objects.get(short_name=dataset_short_name)
+
+
     annotations = Annotation.objects.filter(ic__dataset__short_name=dataset_short_name)
 
-    flags = [
-        'flag_brain',
-        'flag_alpha',
-        'flag_mu',
-        'flag_eyes',
-        'flag_eyes_h',
-        'flag_eyes_v',
-        'flag_muscles',
-        'flag_heart',
-        'flag_line_noise',
-        'flag_ch_noise',
-    ]
+    if dataset.annotation_version == 'v1':
+        flags = [
+            'flag_brain',
+            'flag_alpha',
+            'flag_mu',
+            'flag_eyes',
+            'flag_eyes_h',
+            'flag_eyes_v',
+            'flag_muscles',
+            'flag_heart',
+            'flag_line_noise',
+            'flag_ch_noise',
+        ]
+    else:
+        flags = [
+            'flag_brain',
+            'flag_alpha',
+            'flag_mu',
+            'flag_eyes',
+            'flag_eyes_h',
+            'flag_eyes_v',
+            'flag_eyes_blinks',
+            'flag_muscles_and_movement',
+            'flag_muscles',
+            'flag_movement',
+            'flag_heart',
+            'flag_noise',
+            'flag_line_noise',
+            'flag_ch_noise',
+            'flag_uncertain',
+            'flag_other',
+        ]
+
 
     for a in annotations:
         d = {

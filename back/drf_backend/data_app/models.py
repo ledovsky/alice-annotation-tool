@@ -18,11 +18,17 @@ class Dataset(models.Model):
             ics.delete()
         else:
             raise Exception('Model is locked')
+    
+    def __str__(self):
+        return f'Dataset {self.short_name}'
 
 
 class ICAData(models.Model):
     ica_weights = models.TextField()
     ica_data = models.TextField()
+
+    def __str__(self):
+        return f'ICAData {self.ic.__str__()}'
 
 
 class ICAComponent(models.Model):
@@ -42,6 +48,9 @@ class ICAComponent(models.Model):
 
     def get_ica_data(self):
         return pd.DataFrame(json.loads(ICAData.objects.get(ic=self).ica_data))
+    
+    def __str__(self):
+        return f'ICAComponent {self.name} {self.subject} {self.dataset.short_name}'
 
 
 class Annotation(models.Model):
@@ -64,6 +73,7 @@ class Annotation(models.Model):
     flag_mu = models.BooleanField(default=False)
     flag_alpha = models.BooleanField(default=False)
     comment = models.TextField(default='', blank=True)
+    updated_dt = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('ic', 'user', )

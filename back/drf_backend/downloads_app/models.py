@@ -9,3 +9,6 @@ class DatasetDownloadItem(models.Model):
     file = models.FileField(upload_to='downloads')
     version = models.CharField(max_length=128, default='NA')
     uploaded_dt = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('dataset', 'version')

@@ -2,12 +2,12 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import ICAComponent, ICAData, Dataset, Annotation
+from .models import ICAComponent, ICAData, Dataset, Subject, Annotation
 
 
 @admin.register(ICAComponent)
 class ICAComponentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'subject', 'dataset')
+    list_display = ('id', 'name', 'subject_name', 'dataset')
 
 
 @admin.register(Annotation)
@@ -25,3 +25,4 @@ class AnnotationAdmin(admin.ModelAdmin):
 
 admin.site.register(ICAData)
 admin.site.register(Dataset)
+admin.site.register(Subject)

@@ -18,6 +18,7 @@ class ICAListSerializer(serializers.ModelSerializer):
 
     is_annotated = serializers.SerializerMethodField()
     annotation = serializers.SerializerMethodField()
+    subject = serializers.SerializerMethodField()
 
     class Meta:
         model = ICAComponent
@@ -32,6 +33,9 @@ class ICAListSerializer(serializers.ModelSerializer):
                   'is_annotated')
 
         read_only_fields = ('uploaded_by', 'uploaded_at', 'is_annotated', 'annotation')
+    
+    def get_subject(self, obj):
+        return obj.subject_name
 
     def get_is_annotated(self, obj):
         user = self.context['request'].user
@@ -83,6 +87,7 @@ class ICADetailedSerializer(serializers.ModelSerializer):
     # data_obj = ICADataSerializer()
     images = ICAImagesSerializer()
     links = ICALinksSerializer()
+    subject = serializers.SerializerMethodField()
 
     class Meta:
         model = ICAComponent
@@ -97,6 +102,9 @@ class ICADetailedSerializer(serializers.ModelSerializer):
                   'uploaded_by',
                   'uploaded_at',
                   )
+
+    def get_subject(self, obj):
+        return obj.subject_name
 
     # def to_representation(self, instance):
     #     data = super().to_representation(instance)

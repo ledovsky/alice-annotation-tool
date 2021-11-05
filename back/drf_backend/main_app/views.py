@@ -50,7 +50,7 @@ class APIRootView(APIView):
 
 class ICAListView(generics.ListAPIView):
     serializer_class = ICAListSerializer
-    queryset = ICAComponent.objects.all().order_by('subject', 'name')
+    queryset = ICAComponent.objects.all().order_by('subject_name', 'name')
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['dataset']
     search_fields = ['name', 'subject']

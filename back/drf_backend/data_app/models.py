@@ -27,6 +27,9 @@ class Subject(models.Model):
     dataset = models.ForeignKey(Dataset, related_name='subjects', on_delete=models.PROTECT)
     name = models.CharField(max_length=128)
 
+    class Meta:
+        unique_together = ('dataset', 'name')
+
     def __str__(self):
         return f'Subject {self.name} {self.dataset.short_name}'
 
@@ -45,7 +48,7 @@ class ICAData(models.Model):
 class ICAComponent(models.Model):
     name = models.CharField(max_length=128)
     subject_name = models.CharField(max_length=128)
-    subject = models.ForeignKey(Subject, null=True, related_name='ics', on_delete=models.PROTECT)
+    subject = models.ForeignKey(Subject, null=True, related_name='ics', on_delete=models.SET_NULL)
     dataset = models.ForeignKey(Dataset, related_name='ics', on_delete=models.PROTECT)
     sfreq = models.FloatField()
     uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

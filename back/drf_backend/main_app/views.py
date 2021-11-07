@@ -53,7 +53,6 @@ class APIRootView(APIView):
 
 
 class ICAListBySubjectView(APIView):
-    permission_classes = [IsAuthenticated]
     serializer_class = ICAListSerializer
 
     def get(self, request, subject_id):
@@ -74,17 +73,14 @@ class ICAListBySubjectView(APIView):
 class ICADetailedView(generics.RetrieveAPIView):
     serializer_class = ICADetailedSerializer
     queryset = ICAComponent.objects.all()
-    permission_classes = [IsAuthenticated]
 
 
 class DatasetListView(generics.ListAPIView):
     serializer_class = DatasetDetailedSerializer
     queryset = Dataset.objects.all()
-    permission_classes = [IsAuthenticated]
 
 
 class SubjectListView(APIView):
-    permission_classes = [IsAuthenticated]
     serializer_class = SubjectDetailedSerializer
 
     def get(self, request, dataset_id):
@@ -104,13 +100,11 @@ class SubjectListView(APIView):
 class DatasetRetrieveView(generics.RetrieveAPIView):
     serializer_class = DatasetDetailedSerializer
     queryset = Dataset.objects.all()
-    permission_classes = [IsAuthenticated]
 
 
 class SubjectRetrieveView(generics.RetrieveAPIView):
     serializer_class = SubjectDetailedSerializer
     queryset = Subject.objects.all()
-    permission_classes = [IsAuthenticated]
 
 
 class DatasetOperationsBaseView(APIView):

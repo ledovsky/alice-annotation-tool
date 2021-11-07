@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify'
+import { useSelector } from 'react-redux'
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ComponentAnnotation from '../components/ComponentAnnotation';
@@ -32,6 +33,11 @@ function ComponentAnnotationContainer( props ) {
   const [ ic, setIc ] = useState({});
   const [ dataset, setDataset ] = useState({});
   const [ subject, setSubject ] = useState({});
+  const auth = useSelector(state => state.auth);
+  let loggedIn = false;
+  if (auth.token) {
+    loggedIn = true;
+  }
 
   useEffect(async () => {
     setLoading(true);
@@ -44,9 +50,11 @@ function ComponentAnnotationContainer( props ) {
       setDataset(_dataset);
     }
 
-    let _annotation = await Api.getJson(`data/user-annotation-by-ic/${ic_id}`);
-    if (_annotation.id) {
-      setAnnotation(_annotation);
+    if (loggedIn) {
+      let _annotation = await Api.getJson(`data/user-annotation-by-ic/${ic_id}`);
+      if (_annotation.id) {
+        setAnnotation(_annotation);
+      }
     }
     setLoading(false);
   }, [ic_id]);
@@ -77,7 +85,8 @@ function ComponentAnnotationContainer( props ) {
   return (
     <ComponentAnnotation 
       ic={ic} dataset={dataset} subject={subject} onChange={handleInputChange} handleCheck={handleCheck}
-      onCommentFieldChange={handleCommentFieldChange} annotation={annotation} onSubmit={submit} loading={loading}/>    
+      onCommentFieldChange={handleCommentFieldChange} annotation={annotation} onSubmit={submit} 
+      loggedIn={loggedIn} loading={loading}/>    
   )
 }
 

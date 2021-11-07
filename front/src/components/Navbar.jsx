@@ -29,19 +29,11 @@ function Navbar(props) {
         <ul className="flex">
           <NavbarItemMain>ALICE Project</NavbarItemMain>
           <NavbarItem to="/" margin></NavbarItem>
-
-          { props.loggedIn ?
           <NavbarItem to="/datasets">Explore datasets</NavbarItem>
-          : ''
-          }
           <NavbarItem to="/docs">Documentation</NavbarItem>
           <NavbarItem to="/downloads">Downloads</NavbarItem>
           { props.loggedIn ?
             <NavbarItem key="logout" href="#" onClick={props.handleLogout}>{props.fullName}: Logout</NavbarItem>
-
-            // <li className="mr-6">
-            //   <a className="text-gray-700 hover:text-gray-800" href="" onClick={props.handleLogout}>{props.fullName}: Logout</a>
-            // </li>
             :
             <NavbarItem key="login" to="/login">Login To Annotation Tool</NavbarItem>
           }

@@ -19,8 +19,10 @@ function ComponentAnnotation( props ) {
         <div className="mx-6 mt-6 flex">
         <div className="w-full max-w-sm">
         { props.dataset.annotation_version === "v1" ? 
-        <AnnotationForm onChange={props.onChange} onSubmit={props.onSubmit} annotation={props.annotation} />
-        : <AnnotationFormV2 onSubmit={props.onSubmit} annotation={props.annotation} handleCheck={props.handleCheck}/>
+        <AnnotationForm onChange={props.onChange} onSubmit={props.onSubmit} 
+         annotation={props.annotation} loggedIn={props.loggedIn} />
+        : <AnnotationFormV2 onSubmit={props.onSubmit} annotation={props.annotation} 
+           handleCheck={props.handleCheck} loggedIn={props.loggedIn}/>
         }
           {/* <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div className="flex">

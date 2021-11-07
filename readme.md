@@ -1,5 +1,40 @@
 # ALICE Annotation Tool
 
+## How to set up dev (no docker-compose)
+
+Postgres should run at port 5432. Easy way to use docker image
+
+```
+docker run -p 5432:5432 -d -e POSTGRES_PASSWORD=pwd postgres
+```
+
+### Backend
+
+First, a virtual env should be created and activated
+
+```
+cd back
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Backend runs at port 8000 using
+
+```
+cd back/drf_backend
+python manage.py runserver
+```
+
+Development db initialization could be used by
+
+```
+python manage.py init_dev_db
+```
+
+Admin user is created with login and password admin/admin
+
+
 ## How to set up dev
 
 Create a docker network if not created

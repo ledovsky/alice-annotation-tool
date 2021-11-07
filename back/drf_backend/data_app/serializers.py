@@ -1,8 +1,9 @@
 import json
 
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
-from .models import Dataset, ICAComponent, ICAData, Annotation
+from .models import Dataset, Subject, ICAComponent, ICAData, Annotation
 
 
 class ICADataSerializer(serializers.Serializer):
@@ -19,6 +20,7 @@ class ICACreateSerializer(serializers.ModelSerializer):
     )
 
     data_obj = ICADataSerializer()
+    subject = serializers.CharField(max_length=128)
 
     class Meta:
         model = ICAComponent
@@ -39,7 +41,12 @@ class ICACreateSerializer(serializers.ModelSerializer):
         ica_data['ica_weights'] = json.dumps(ica_data['ica_weights'])
         ica_data['ica_data'] = json.dumps(ica_data['ica_data'])
         ica_data_obj = ICAData.objects.create(**ica_data)
-        ic = ICAComponent.objects.create(data_obj=ica_data_obj, **validated_data)
+        subject_name = validated_data.pop('subject')
+        try:
+            subject = Subject.objects.get(dataset=validated_data['dataset'], name=subject_name)
+        except ObjectDoesNotExist:
+            subject = Subject.objects.create(dataset=validated_data['dataset'], name=subject_name)
+        ic = ICAComponent.objects.create(data_obj=ica_data_obj, subject_name=subject_name, subject=subject, **validated_data)
         return ic
 
 

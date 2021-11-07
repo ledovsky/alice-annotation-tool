@@ -10,7 +10,7 @@ import AnnotationFormV2 from './AnnotationFormV2';
 function ComponentAnnotation( props ) {
   return (
     <div>
-      <AnnotationBar ic={props.ic} dataset={props.dataset} state="annotation"/>
+      <AnnotationBar ic={props.ic} dataset={props.dataset} subject={props.subject} state="annotation"/>
       <div className="mt-6 ml-6" hidden={!props.loading}>
         <Spinner/>
       </div>

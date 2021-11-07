@@ -18,16 +18,37 @@ class Dataset(models.Model):
             ics.delete()
         else:
             raise Exception('Model is locked')
+    
+    def __str__(self):
+        return f'Dataset {self.short_name}'
+
+
+class Subject(models.Model):
+    dataset = models.ForeignKey(Dataset, related_name='subjects', on_delete=models.PROTECT)
+    name = models.CharField(max_length=128)
+
+    class Meta:
+        unique_together = ('dataset', 'name')
+
+    def __str__(self):
+        return f'Subject {self.name} {self.dataset.short_name}'
 
 
 class ICAData(models.Model):
     ica_weights = models.TextField()
     ica_data = models.TextField()
 
+    def __str__(self):
+        if hasattr(self, 'ic'):
+            return f'ICAData {self.ic.__str__()}'
+        else:
+            return f'ICAData {self.id}'
+
 
 class ICAComponent(models.Model):
     name = models.CharField(max_length=128)
-    subject = models.CharField(max_length=128)
+    subject_name = models.CharField(max_length=128)
+    subject = models.ForeignKey(Subject, null=True, related_name='ics', on_delete=models.SET_NULL)
     dataset = models.ForeignKey(Dataset, related_name='ics', on_delete=models.PROTECT)
     sfreq = models.FloatField()
     uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -35,13 +56,16 @@ class ICAComponent(models.Model):
     data_obj = models.OneToOneField(ICAData, null=False, related_name='ic', on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('name', 'subject', 'dataset')
+        unique_together = ('name', 'subject_name', 'dataset')
 
     def get_ica_weights(self):
         return pd.DataFrame(json.loads(ICAData.objects.get(ic=self).ica_weights))
 
     def get_ica_data(self):
         return pd.DataFrame(json.loads(ICAData.objects.get(ic=self).ica_data))
+    
+    def __str__(self):
+        return f'ICAComponent {self.name} {self.subject} {self.dataset.short_name}'
 
 
 class Annotation(models.Model):
@@ -64,6 +88,7 @@ class Annotation(models.Model):
     flag_mu = models.BooleanField(default=False)
     flag_alpha = models.BooleanField(default=False)
     comment = models.TextField(default='', blank=True)
+    updated_dt = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('ic', 'user', )

@@ -31,12 +31,15 @@ function ComponentAnnotationContainer( props ) {
   const [ loading, setLoading ] = useState(true);
   const [ ic, setIc ] = useState({});
   const [ dataset, setDataset ] = useState({});
+  const [ subject, setSubject ] = useState({});
 
   useEffect(async () => {
     setLoading(true);
     let _ic = await Api.getJson(`view/ic/${ic_id}`);
     if (_ic.id) {
       setIc(_ic);
+      let _subject = await Api.getJson(`view/subjects/${_ic.subject.id}`);
+      setSubject(_subject);
       let _dataset = await Api.getJson(`view/datasets/${_ic.dataset}`);
       setDataset(_dataset);
     }
@@ -73,7 +76,7 @@ function ComponentAnnotationContainer( props ) {
 
   return (
     <ComponentAnnotation 
-      ic={ic} dataset={dataset} onChange={handleInputChange} handleCheck={handleCheck}
+      ic={ic} dataset={dataset} subject={subject} onChange={handleInputChange} handleCheck={handleCheck}
       onCommentFieldChange={handleCommentFieldChange} annotation={annotation} onSubmit={submit} loading={loading}/>    
   )
 }

@@ -14,7 +14,7 @@ function DatasetViewContainer(props) {
   const [ loading, setLoading ] = useState(true);
   const [ params, setParams ] = useState({});
   const [ dataset, setDataset ] = useState({});
-  const [ ics, setIcs ] = useState([]);
+  const [ subjects, setSubjects ] = useState([]);
 
   const datasets = useSelector(state => state.datasets);
   console.log(datasets);
@@ -23,14 +23,14 @@ function DatasetViewContainer(props) {
     setLoading(true);
     let dataset = await Api.getJson(`view/datasets/${dataset_id}`);
     setDataset(dataset);
-    let collection = await Api.getList('view/ic/list', { dataset: dataset_id});
-    setIcs(collection);
+    let collection = await Api.getList(`view/subjects/list/by-dataset/${dataset_id}`);
+    setSubjects(collection);
     setLoading(false);
   }, [ params ]);
 
 
   return (
-    <DatasetView dataset={dataset} ics={ics} loading={loading} />
+    <DatasetView dataset={dataset} subjects={subjects} loading={loading} />
   )
 }
 

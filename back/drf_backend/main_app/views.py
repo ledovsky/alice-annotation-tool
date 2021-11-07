@@ -16,10 +16,12 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-
 from data_app.views import DatasetOperationsBaseView
-from .serializers import ICAListSerializer, ICADetailedSerializer, DatasetDetailedSerializer, AnnotationListSerializer
-from .models import ICAComponent, Dataset, Annotation, ICAImages, ICALinks
+from data_app.models import Dataset, Subject, Annotation, ICAComponent
+from .serializers import (
+    ICAListSerializer, ICADetailedSerializer, DatasetDetailedSerializer, AnnotationListSerializer, SubjectDetailedSerializer)
+from .models import ICAImages, ICALinks
+
 
 
 class APIRootView(APIView):
@@ -38,23 +40,35 @@ class APIRootView(APIView):
             'downloads-actual': reverse('downloads-actual', request=request),
 
             ## main_app
-            'view-ic-list': reverse('view-ic-list', request=request),
-            'view-ic': reverse('view-ic', request=request, args=[1]),
+            'view-ic-list-by-subject': reverse('view-ic-list-by-subject', request=request, args=[1]),
+            'view-ic-retrieve': reverse('view-ic-retrieve', request=request, args=[1]),
             'view-annotations-list': reverse('view-annotations-list', request=request),
             'view-datasets-list': reverse('view-datasets-list', request=request),
+            'view-subjects-list': reverse('view-subjects-list-by-dataset', request=request, args=[1]),
             'view-datasets-retrieve': reverse('view-datasets-retrieve', request=request, args=[1]),
+            'view-subjects-retrieve': reverse('view-subjects-retrieve', request=request, args=[1]),
             'view-datasets-recalc': reverse('view-datasets-recalc', request=request, args=[1]),
         }
         return Response(data)
 
 
-class ICAListView(generics.ListAPIView):
-    serializer_class = ICAListSerializer
-    queryset = ICAComponent.objects.all().order_by('subject_name', 'name')
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ['dataset']
-    search_fields = ['name', 'subject']
+class ICAListBySubjectView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ICAListSerializer
+
+    def get(self, request, subject_id):
+        queryset = (ICAComponent
+            .objects
+            .all()
+            .order_by('subject__name', 'name')
+            .filter(subject=subject_id)
+        )
+        context = {
+            'request': request,
+        }
+        serializer = self.serializer_class(queryset, many=True, context=context)
+        return Response(serializer.data)
+        
 
 
 class ICADetailedView(generics.RetrieveAPIView):
@@ -69,9 +83,33 @@ class DatasetListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
+class SubjectListView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubjectDetailedSerializer
+
+    def get(self, request, dataset_id):
+        queryset = (Subject
+            .objects
+            .all()
+            .order_by('name')
+            .filter(dataset=dataset_id)
+        )
+        context = {
+            'request': request,
+        }
+        serializer = self.serializer_class(queryset, many=True, context=context)
+        return Response(serializer.data)
+
+
 class DatasetRetrieveView(generics.RetrieveAPIView):
     serializer_class = DatasetDetailedSerializer
     queryset = Dataset.objects.all()
+    permission_classes = [IsAuthenticated]
+
+
+class SubjectRetrieveView(generics.RetrieveAPIView):
+    serializer_class = SubjectDetailedSerializer
+    queryset = Subject.objects.all()
     permission_classes = [IsAuthenticated]
 
 

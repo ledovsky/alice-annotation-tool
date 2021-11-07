@@ -11,8 +11,14 @@ def create_subject(apps, schema_editor):
     ics = ICAComponent.objects.all()
 
     for ic in ics:
-        if not Subject.objects.filter(dataset=ic.dataset, name=ic.subject_name).exists():
-            Subject.objects.create(dataset=ic.dataset, name=ic.subject_name)
+        if ic.subject:
+            continue
+        if Subject.objects.filter(dataset=ic.dataset, name=ic.subject_name).exists():
+            subj = Subject.objects.get(dataset=ic.dataset, name=ic.subject_name)
+        else:
+            subj = Subject.objects.create(dataset=ic.dataset, name=ic.subject_name)
+        ic.subject = subj
+        ic.save()
 
 
 def reverse_code(apps, schema_editor):

@@ -1,14 +1,10 @@
+import Breadcrumbs from '../common/Breadcrumbs';
 import Link from '../common/Link';
 
 function AnnotationBar (props) {
   return (
     <div className="mx-6 flex">
-      <p>
-        <Link href="/datasets">Datasets</Link><span> / </span>
-        <Link href={`/datasets/${props.dataset.id}`}>{props.dataset.full_name}</Link><span> / </span>
-        <Link href={`/datasets/${props.dataset.id}`}>{props.ic.subject}</Link><span> / </span>
-        <Link href="#">{props.ic.name}</Link>
-      </p>
+      <Breadcrumbs dataset={props.dataset} subject={props.subject} ic={props.ic} />
       {/* { props.state == 'annotation' ?
         <p className="ml-6"><Link href={`/ic/${props.ic.id}`}>Annotations</Link></p> : ''
       } */}

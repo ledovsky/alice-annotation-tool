@@ -3,22 +3,57 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from auth_app.serializers import UserSerializer
-from data_app.models import Dataset, ICAComponent
+from data_app.models import Dataset, Subject, Annotation, ICAComponent
 # from data_app.serializers import AnnotationSerializer
 from .models import DatasetStats, Annotation, ICAImages, ICALinks
 
 
+class DatasetStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DatasetStats
+        fields = ('dataset', 'n_components', 'agreement')
+
+
+class DatasetMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dataset
+        fields = ('id', 'short_name', 'full_name')
+
+
+class DatasetDetailedSerializer(serializers.ModelSerializer):
+    stats = DatasetStatsSerializer(read_only=True)
+    class Meta:
+        model = Dataset
+        fields = ('id', 'short_name', 'full_name', 'annotation_version', 'stats')
+
+
+class SubjectMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = ('id', 'name', 'dataset')
+
+
+class SubjectDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = '__all__'
+
+
+class AnnotationListSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Annotation
+        fields = '__all__'
+
+
 class ICAListSerializer(serializers.ModelSerializer):
 
-    dataset = serializers.SlugRelatedField(
-        many=False,
-        slug_field='short_name',
-        queryset=Dataset.objects.all()
-    )
+    subject = SubjectDetailedSerializer()
+    dataset = DatasetMinimalSerializer()
 
     is_annotated = serializers.SerializerMethodField()
     annotation = serializers.SerializerMethodField()
-    subject = serializers.SerializerMethodField()
 
     class Meta:
         model = ICAComponent
@@ -34,9 +69,6 @@ class ICAListSerializer(serializers.ModelSerializer):
 
         read_only_fields = ('uploaded_by', 'uploaded_at', 'is_annotated', 'annotation')
     
-    def get_subject(self, obj):
-        return obj.subject_name
-
     def get_is_annotated(self, obj):
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -70,24 +102,11 @@ class ICALinksSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DatasetStatsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DatasetStats
-        fields = ('dataset', 'n_components', 'agreement')
-
-
-class DatasetDetailedSerializer(serializers.ModelSerializer):
-    stats = DatasetStatsSerializer(read_only=True)
-    class Meta:
-        model = Dataset
-        fields = ('id', 'short_name', 'full_name', 'annotation_version', 'stats')
-
-
 class ICADetailedSerializer(serializers.ModelSerializer):
     # data_obj = ICADataSerializer()
     images = ICAImagesSerializer()
     links = ICALinksSerializer()
-    subject = serializers.SerializerMethodField()
+    subject = SubjectMinimalSerializer()
 
     class Meta:
         model = ICAComponent
@@ -110,12 +129,3 @@ class ICADetailedSerializer(serializers.ModelSerializer):
     #     data = super().to_representation(instance)
     #     data['data'] = data.pop('data_obj')
     #     return data
-
-
-
-class AnnotationListSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
-    class Meta:
-        model = Annotation
-        fields = '__all__'

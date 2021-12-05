@@ -15,8 +15,6 @@ import AnnotationList from './containers/AnnotationListContainer';
 import Downloads from './containers/DownloadsContainer';
 import NotFound from './components/NotFound';
 
-import LoggedInActions from './containers/LoggedInActionsContainer';
-
 
 function App() {
 
@@ -24,7 +22,6 @@ function App() {
 
   return (
     <React.Fragment>
-      <LoggedInActions />
       <div className="flex-auto">
         <Router>
           <Navbar />

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './styles/tailwind.css';
+import './styles/custom.css';
 import 'react-toastify/dist/ReactToastify.css';
 import App from './App.jsx';
 import reportWebVitals from './reportWebVitals';

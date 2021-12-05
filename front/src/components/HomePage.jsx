@@ -1,5 +1,7 @@
 import React from 'react';
 import ExternalLink from '../common/ExternalLink';
+import Button from '../common/Button';
+
 
 function HomePage (props) {
   return (
@@ -12,6 +14,11 @@ function HomePage (props) {
           <li className="mt-3"> <ExternalLink href="https://www.skoltech.ru/en">Skolkovo Institute of Science and Technology </ExternalLink></li>
           <li className="mt-3"> <ExternalLink href="https://www.ihna.ru/en/">Institute of Higher Nervous Activity and Neurophysiology of Russian Academy of Science</ExternalLink></li>
         </ul>
+        <div className="mt-10">
+          <a href="/docs/contribute" className="">
+            <Button>How to contribute</Button>
+          </a>
+        </div>
       </div>
       <div className="col-span-1">
         <img src="homepage.png" alt=""/>

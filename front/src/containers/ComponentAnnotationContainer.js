@@ -8,8 +8,7 @@ import Api from '../api';
 
 function ComponentAnnotationContainer( props ) {
 
-  const { ic_id } = useParams();
-  const [ annotation, setAnnotation ] = useState({
+  const default_annotation = {
     flag_brain: false,
     flag_mu: false,
     flag_alpha: false,
@@ -27,8 +26,10 @@ function ComponentAnnotationContainer( props ) {
     flag_uncertain: false,
     flag_other: false,
     comment: ''
-  });
+  }
 
+  const { ic_id } = useParams();
+  const [ annotation, setAnnotation ] = useState({default_annotation});
   const [ loading, setLoading ] = useState(true);
   const [ ic, setIc ] = useState({});
   const [ dataset, setDataset ] = useState({});
@@ -54,6 +55,8 @@ function ComponentAnnotationContainer( props ) {
       let _annotation = await Api.getJson(`data/user-annotation-by-ic/${ic_id}`);
       if (_annotation.id) {
         setAnnotation(_annotation);
+      } else {
+        setAnnotation(default_annotation);
       }
     }
     setLoading(false);

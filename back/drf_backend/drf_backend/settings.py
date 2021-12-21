@@ -196,6 +196,15 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'aliceadase@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ['DJANGO_EMAIL_HOST_PASSWORD']
+EMAIL_USE_TLS = True
+
+
 if env == 'prod':
     LOGGING = {
         'version': 1,

@@ -33,18 +33,17 @@ else:
     SECRET_KEY = '*udtpxl4zo*0cy204%@kkag)!hr(drh_uzljyrfjl(+fvwf$=#'
     DEBUG = True
 
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-
 ALLOWED_HOSTS = ['168.119.186.83', 'localhost', '127.0.0.1', 'alice.adase.org']
-
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://168.119.186.83:8080',
+    'http://168.119.186.83:80',
+]
+if env == 'prod':
+    CUSTOM_HOST = 'http://alice.adase.org'
+else:
+    CUSTOM_HOST = 'http://localhost:3000'
 
 # Application definition
 
@@ -60,7 +59,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'django_rest_passwordreset',
-    # 'django_extensions',
     'data_app',
     'main_app',
     'auth_app',
@@ -98,21 +96,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'drf_backend.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-if env == 'dev':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': 'pwd',
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
-        }
-    }
-else:
+if env == 'prod':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -123,37 +107,23 @@ else:
             'PORT': os.environ['DJANGO_POSTGRES_PORT'],
         }
     }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'pwd',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
+    }
 
-# Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
-
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#     },
-# ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -162,31 +132,17 @@ USE_TZ = True
 
 if env == 'prod':
     STATIC_ROOT = '/django_static/api-static'
-else:
-    STATIC_ROOT = join(BASE_DIR, 'static')
-
-STATIC_URL = '/api-static/'
-
-if env == 'prod':
     MEDIA_ROOT = '/django_media/media'
-else:
-    MEDIA_ROOT = join(BASE_DIR, 'media')
-
-MEDIA_URL = '/media/'
-
-TMP_DIR = join(BASE_DIR, 'tmp')
-
-if env == 'prod':
     OUT_DIR = '/django_out'
 else:
+    STATIC_ROOT = join(BASE_DIR, 'static')
+    MEDIA_ROOT = join(BASE_DIR, 'media')
     OUT_DIR = join(BASE_DIR, 'out')
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8080',
-    'http://168.119.186.83:8080',
-    'http://168.119.186.83:80',
-]
+STATIC_URL = '/api-static/'
+MEDIA_URL = '/media/'
+TMP_DIR = join(BASE_DIR, 'tmp')
+
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
@@ -204,7 +160,7 @@ EMAIL_HOST_USER = 'aliceadase@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ['DJANGO_EMAIL_HOST_PASSWORD']
 EMAIL_USE_TLS = True
 
-
+# Logging
 if env == 'prod':
     LOGGING = {
         'version': 1,
@@ -224,3 +180,21 @@ if env == 'prod':
             },
         },
     }
+
+# Password validation
+# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
+
+# AUTH_PASSWORD_VALIDATORS = [
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+#     },
+# ]

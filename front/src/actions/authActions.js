@@ -12,7 +12,7 @@ export async function login(login, password){
       type: "AUTH_LOG_IN",
       payload: data
     })
-    toast.success(`Добро пожаловать, ${ data.user.first_name }`)
+    toast.success(`Welcome, ${ data.user.first_name }`)
   }
   return response
 }

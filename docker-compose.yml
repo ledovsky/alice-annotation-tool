@@ -26,6 +26,7 @@ services:
       - $HOME/alice_volumes/static:/django_static:ro
     depends_on:
       - back
+
   postgres:
     image: postgres:latest
     networks:
@@ -35,6 +36,30 @@ services:
     env_file: ./postgres/.env
     volumes:
       - $HOME/alice_volumes/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  redis:
+    image: redis:latest
+    networks:
+      - reverse-proxy
+    ports:
+      - 8097:6379
+    
+  worker1:
+    build: ./back
+    env_file: ./back/.env
+    command:
+      - /bin/bash 
+      - /back/entrypoint_celery.sh
+    networks:
+      - reverse-proxy
+    depends_on:
+      - postgres
+      - redis
 
 networks:
     reverse-proxy:

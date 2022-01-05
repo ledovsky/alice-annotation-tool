@@ -181,6 +181,12 @@ if env == 'prod':
         },
     }
 
+
+if env == 'prod':
+    CELERY_BROKER_URL = "redis://redis:6379/0"
+else:
+    CELERY_BROKER_URL = "redis://localhost:6379/0"
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 

@@ -10,6 +10,7 @@ import { LoginContainer } from './containers/auth/LoginContainer';
 import { ResetPasswordContainer } from './containers/auth/ResetPasswordContainer';
 import { ForgotPasswordContainer } from './containers/auth/ForgotPasswordContainer';
 
+import { AdminPageContainer } from './containers/AdminPageContainer';
 import DocsPage from './components/DocsPage';
 import Datasets from './containers/DatasetsContainer';
 import DatasetView from './containers/DatasetViewContainer';
@@ -35,6 +36,8 @@ function App() {
             <Route path="/login" component={LoginContainer} />
             <Route path="/reset-password" component={ResetPasswordContainer} />
             <Route path="/forgot-password" component={ForgotPasswordContainer} />
+
+            <Route path="/admin" component={AdminPageContainer} />
 
             <Route exact path="/datasets" component={Datasets} />
             <Route exact path="/datasets/:dataset_id" component={DatasetView} />

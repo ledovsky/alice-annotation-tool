@@ -47,10 +47,30 @@ class AnnotationListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ICAImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ICAImages
+        fields = '__all__'
+
+
+class ICAImagesTomopapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ICAImages
+        fields = ('img_topomap',)
+
+
+class ICALinksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ICALinks
+        fields = '__all__'
+
+
 class ICAListSerializer(serializers.ModelSerializer):
 
     subject = SubjectDetailedSerializer()
     dataset = DatasetMinimalSerializer()
+
+    images = ICAImagesTomopapSerializer()
 
     is_annotated = serializers.SerializerMethodField()
     annotation = serializers.SerializerMethodField()
@@ -65,6 +85,7 @@ class ICAListSerializer(serializers.ModelSerializer):
                   'uploaded_by',
                   'uploaded_at',
                   'annotation',
+                  'images',
                   'is_annotated')
 
         read_only_fields = ('uploaded_by', 'uploaded_at', 'is_annotated', 'annotation')
@@ -88,18 +109,6 @@ class ICAListSerializer(serializers.ModelSerializer):
             return AnnotationListSerializer(annotation).data
         except ObjectDoesNotExist:
             return {}
-
-
-class ICAImagesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ICAImages
-        fields = '__all__'
-
-
-class ICALinksSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ICALinks
-        fields = '__all__'
 
 
 class ICADetailedSerializer(serializers.ModelSerializer):

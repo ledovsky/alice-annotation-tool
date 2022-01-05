@@ -16,12 +16,14 @@ function NavbarContainer (props) {
 
   let loggedIn = false;
   let fullName = '';
+  let isStaff = false;
   if ('token' in auth) {
     loggedIn = true;
     fullName = auth.user.first_name + ' ' + auth.user.last_name;
+    isStaff = auth.user.is_staff;
   }
 
-  return (<Navbar loggedIn={loggedIn} fullName={fullName} handleLogout={ handleLogout }/>)
+  return (<Navbar loggedIn={loggedIn} fullName={fullName} isStaff={isStaff} handleLogout={ handleLogout }/>)
 }
 
 export default NavbarContainer;

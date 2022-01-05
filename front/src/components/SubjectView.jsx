@@ -1,27 +1,41 @@
 import Breadcrumbs from '../common/Breadcrumbs';
-import Check from '../common/Check';
+import { Link } from 'react-router-dom';
+
 import Spinner from '../common/Spinner';
+import { annotationClasses } from '../Constants';
 
 
 function SubjectView (props) {
-  const rows = props.ics.map((ic) =>
-    <tr key={ic.id.toString()}>
-      <td className="border px-4 py-2">{ic.subject.name}</td>
-      <td className="border px-4 py-2"><a className="text-indigo-500" href={`/ic/${ic.id}/annotate`}>{ic.name}</a></td>
-      <td className="border px-4 py-2">{ ic.is_annotated ? 'Yes' : ''}</td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_brain : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_mu : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_alpha : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_eyes : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_eyes_v : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_eyes_h : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_muscles : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_heart : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_line_noise : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_ch_noise : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_uncertain : false} /> </td>
-      <td className="border px-4 py-2"> <Check flag={ic.annotation ? ic.annotation.flag_other : false} /> </td>
-    </tr>
+  const ics = props.ics.map((ic) => {
+    let tags = Object.entries(ic.annotation).map(([key, value]) => {
+      if (key.includes("flag") && value === true) {
+        return annotationClasses[key].name;
+      } else {
+        return null;
+      }
+    });
+    tags = tags.filter(tag => tag !== null);
+    tags = tags.map(tag => {
+      return (
+        <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-indigo-100 bg-indigo-600 rounded mr-2 mt-2">{tag}</span>
+      )
+    })
+    return (
+      <div className="w-full max-w-xs px-6 py-6" key={ic.id}>
+        <Link to={`/ic/${ic.id}/annotate`}>
+          <p className="text-center font-bold">{ic.name}</p>
+          { ic.images ?
+            <img src={ic.images.img_topomap} alt=""/> : <div></div>
+          }
+        </Link>
+        <div className="w-full text-center content-center">
+          { tags.length ?
+            <div class="flex flex-wrap">{tags}</div>  :
+            <p>Is not annotated</p>
+          }
+        </div>
+      </div>
+  )}
   );
   return (
     <div className="ml-6">
@@ -29,30 +43,9 @@ function SubjectView (props) {
       <div className="mt-6 ml-6" hidden={!props.loading}>
         <Spinner/>
       </div>
-      <table className="table-auto mt-6" hidden={props.loading}>
-        <thead>
-          <tr>
-            <th className="px-4 py-2">Subject</th>
-            <th className="px-4 py-2">IC Name</th>
-            <th className="px-4 py-2">Is annotated</th>
-            <th className="px-4 py-2">Brain</th>
-            <th className="px-4 py-2">Mu</th>
-            <th className="px-4 py-2">Alpha</th>
-            <th className="px-4 py-2">Eyes</th>
-            <th className="px-4 py-2">Eyes Vert</th>
-            <th className="px-4 py-2">Eyes Hor</th>
-            <th className="px-4 py-2">Muscles</th>
-            <th className="px-4 py-2">Heart</th>
-            <th className="px-4 py-2">Line Noise</th>
-            <th className="px-4 py-2">Ch Noise</th>
-            <th className="px-4 py-2">Uncert</th>
-            <th className="px-4 py-2">Other</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows}
-        </tbody>
-      </table>
+      <div className="flex flex-wrap">
+        {ics}
+      </div>
     </div>
   )
 }

@@ -40,27 +40,30 @@ function ComponentAnnotationContainer( props ) {
     loggedIn = true;
   }
 
-  useEffect(async () => {
-    setLoading(true);
-    let _ic = await Api.getJson(`view/ic/${ic_id}`);
-    if (_ic.id) {
-      setIc(_ic);
-      let _subject = await Api.getJson(`view/subjects/${_ic.subject.id}`);
-      setSubject(_subject);
-      let _dataset = await Api.getJson(`view/datasets/${_ic.dataset}`);
-      setDataset(_dataset);
-    }
-
-    if (loggedIn) {
-      let _annotation = await Api.getJson(`data/user-annotation-by-ic/${ic_id}`);
-      if (_annotation.id) {
-        setAnnotation(_annotation);
-      } else {
-        setAnnotation(default_annotation);
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      let _ic = await Api.getJson(`view/ic/${ic_id}`);
+      if (_ic.id) {
+        setIc(_ic);
+        let _subject = await Api.getJson(`view/subjects/${_ic.subject.id}`);
+        setSubject(_subject);
+        let _dataset = await Api.getJson(`view/datasets/${_ic.dataset}`);
+        setDataset(_dataset);
       }
+
+      if (loggedIn) {
+        let _annotation = await Api.getJson(`data/user-annotation-by-ic/${ic_id}`);
+        if (_annotation.id) {
+          setAnnotation(_annotation);
+        } else {
+          setAnnotation(default_annotation);
+        }
+      }
+      setLoading(false);
     }
-    setLoading(false);
-  }, [ic_id]);
+    fetchData();
+  }, [ic_id, loggedIn]);
 
   function handleInputChange (e) {
     const {name, checked} = e.target;

@@ -28,7 +28,7 @@ services:
       - back
 
   postgres:
-    image: postgres:latest
+    image: postgres:13.1
     networks:
         - reverse-proxy
     ports:

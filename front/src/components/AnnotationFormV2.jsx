@@ -10,24 +10,22 @@ import CheckboxField from '../common/CheckboxField';
 
 
 const tooltips = {
-  flag_brain: "Brain activity",
-  flag_alpha: "Alpha brain EEG rhythm",
-  flag_mu: "Mu brain EEG rhythm",
-  flag_eyes: "Eyes artefacts",
-  flag_eyes_blinks: "Components that represent eye blink artefacts",
+  flag_brain: "Brain activity of any type",
+  flag_alpha: "Alpha - rhythm with oscillation in the alpha-band with predominance in the occipital lobe",
+  flag_mu: "EEG Mu - rhythm",
+  flag_eyes: "Eye movement artifacts of any type",
+  flag_eyes_blinks: "Eye blink artefacts",
   flag_eyes_h: "Components that represent activity during eye movements in horizontal directions",
   flag_eyes_v: "Components that represent activity during eye movements in vertical directions",
   flag_noise: "Noise artefacts",
   flag_line_noise: "Line current noise that is evoked by surrounding electrical devices. Its dramatically high amplitudes well recognise it in 50 or 60 Hz",
-  flag_ch_noise: "The noise associated with channels that can be marked as bad ones",
-  flag_ch_noise: "The noise associated with channels that can be marked as bad ones",
+  flag_ch_noise: "The noise associated with channels that can be marked as bad ones. Electrode movements during recording or high values of impedance between electrode and scalp or even spoiled electrodes, can result in channels noise artefacts",
   flag_muscles_and_movement: "Muscle and movements artefacts",
   flag_muscles: "Artefacts come from a recording of muscle activity on the head surface",
   flag_movement: "Artefacts that are produced by participant movements during recording",
   flag_heart: "Artefacts that represent electrocardiographic activity",
-  flag_other: "Can be used to mark components as finished in case of partial annotation (e.g. eyes-only)",
-  flag_uncertain: "Use in case of severly mixed components and low confidence in labels",
-
+  flag_other: "Components with certain and explicit nature which label is not listed in the labeling system, for example, “Breathing”). Mention the true activity class in the comment section below",
+  flag_uncertain: "Severely mixed components or components with unclear nature",
 }
 
 

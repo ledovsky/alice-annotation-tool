@@ -52,6 +52,10 @@ services:
   worker1:
     build: ./back
     env_file: ./back/.env
+    volumes:
+      - $HOME/alice_volumes/media:/django_media
+      - $HOME/alice_volumes/static:/django_static
+      - $HOME/alice_volumes/out:/django_out
     command:
       - /bin/bash 
       - /back/entrypoint_celery.sh

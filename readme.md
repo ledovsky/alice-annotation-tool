@@ -2,10 +2,16 @@
 
 ## How to set up dev (no docker-compose)
 
-Postgres should run at port 5432. Easy way to use docker image
+Run postgres on 5432
 
 ```
 docker run -p 5432:5432 -d -e POSTGRES_PASSWORD=pwd postgres
+```
+
+Run redis on 6379
+
+```
+docker run --name some-redis -d -p 6379:6379 redis
 ```
 
 ### Backend
@@ -17,6 +23,12 @@ cd back
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
+
+Copy .env.sample to .env.dev and paste necessary variables. Then you can export the variables via
+
+```
+set -o allexport; source .env.dev; set +o allexport
 ```
 
 Backend runs at port 8000 using

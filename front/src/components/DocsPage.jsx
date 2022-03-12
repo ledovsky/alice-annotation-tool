@@ -6,6 +6,9 @@ import GeneralSharing from '../docs/GeneralSharing';
 import GeneralContribute from '../docs/GeneralContribute';
 import DatasetsKids from '../docs/DatasetsKids';
 import DatasetsStructure from '../docs/DatasetsStructure';
+import DatasetsMuRhythm from '../docs/DatasetsMuRhythm';
+import DatasetsMuRhythm2 from '../docs/DatasetsMuRhythm2';
+import DatasetsAdults from '../docs/DatasetsAdults';
 
 function SidebarItem (props) {
   return (
@@ -36,7 +39,10 @@ function DocsPage (props) {
         {/* <SidebarSubItem>Getting started</SidebarSubItem> */}
         <SidebarItem>Datasets</SidebarItem>
         <SidebarSubItem url='/docs/datasets-structure'>Download files structure</SidebarSubItem>
-        <SidebarSubItem url='/docs/datasets-kids'>Kids Dataset</SidebarSubItem>
+        <SidebarSubItem url='/docs/datasets-kids'>Dataset "Kids"</SidebarSubItem>
+        <SidebarSubItem url='/docs/datasets-mu-rhythm'>Dataset "Mu Rhythm"</SidebarSubItem>
+        <SidebarSubItem url='/docs/datasets-mu-rhythm-2'>Dataset "Mu Rythm 2"</SidebarSubItem>
+        <SidebarSubItem url='/docs/datasets-adults'>Dataset "Adults"</SidebarSubItem>
       </div>
       <div className="col-span-3 px-10 mt-6">
         <Switch>
@@ -48,6 +54,9 @@ function DocsPage (props) {
           <Route path="/docs/contribute" component={GeneralContribute} />
           <Route path="/docs/datasets-structure" component={DatasetsStructure} />
           <Route path="/docs/datasets-kids" component={DatasetsKids} />
+          <Route path="/docs/datasets-mu-rhythm" component={DatasetsMuRhythm} />
+          <Route path="/docs/datasets-mu-rhythm-2" component={DatasetsMuRhythm2} />
+          <Route path="/docs/datasets-adults" component={DatasetsAdults} />
         </Switch>
 
       </div>

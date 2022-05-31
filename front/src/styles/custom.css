@@ -1,0 +1,21 @@
+.form-checkbox:focus {
+  box-shadow: none;
+  /* border-color: inherit; */
+}
+
+.custom-tooltip {
+  position: relative;
+}
+
+.custom-tooltip .custom-tooltip-text {
+  bottom: 120%;
+  left: 20px;
+
+  visibility: hidden;
+  position: absolute;
+  z-index: 1;
+}
+
+.custom-tooltip:hover .custom-tooltip-text {
+  visibility: visible;
+}

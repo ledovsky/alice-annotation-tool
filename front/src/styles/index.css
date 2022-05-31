@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-100;
+  }
+  html, body {
+    @apply min-h-full;
+    @apply h-full;
+  }
+  html {
+    @apply text-gray-900;
+  }
+
+  #root {
+    @apply min-h-full;
+    @apply flex;
+    @apply flex-col;
+  }
+}

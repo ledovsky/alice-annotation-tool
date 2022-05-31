@@ -1,0 +1,18 @@
+export const annotationClasses = Object.freeze({
+  flag_brain: {name: "Brain", tooltip: "Brain activity"},
+  flag_alpha: {name: "Alpha rhythm", tooltip: "Alpha brain EEG rhythm"},
+  flag_mu: {name: "Mu rhythm", tooltip: "Mu brain EEG rhythm"},
+  flag_eyes: {name: "Eyes", tooltip: "Eyes artefacts"},
+  flag_eyes_blinks: {name: "Eye Blinks", tooltip: "Components that represent eye blink artefacts"},
+  flag_eyes_h: {name:"Eyes Horizontal", tooltip: "Components that represent activity during eye movements in horizontal directions"},
+  flag_eyes_v: {name: "Eyes Vertical", tooltip: "Components that represent activity during eye movements in vertical directions"},
+  flag_noise: {name: "Noise", tooltip: "Noise artefacts"},
+  flag_line_noise: {name: "Line Noise", tooltip: "Line current noise that is evoked by surrounding electrical devices. Its dramatically high amplitudes well recognise it in 50 or 60 Hz"},
+  flag_ch_noise: {name: "Channel Noise", tooltip: "The noise associated with channels that can be marked as bad ones"},
+  flag_muscles_and_movement: {name: "Muscles and Movement", tooltip: "Muscle and movements artefacts"},
+  flag_muscles: {name: "Muscles", tooltip: "Artefacts come from a recording of muscle activity on the head surface"},
+  flag_movement: {name: "Movement", tooltip: "Artefacts that are produced by participant movements during recording"},
+  flag_heart: {name: "Heart", tooltip: "Artefacts that represent electrocardiographic activity"},
+  flag_other: {name: "Other", tooltip: "Can be used to mark components as finished in case of partial annotation (e.g. eyes-only)"},
+  flag_uncertain: {name: "Uncertain", tooltip: "Use in case of severly mixed components and low confidence in labels"},
+});

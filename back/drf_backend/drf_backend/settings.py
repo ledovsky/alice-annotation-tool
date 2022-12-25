@@ -33,7 +33,7 @@ else:
     SECRET_KEY = '*udtpxl4zo*0cy204%@kkag)!hr(drh_uzljyrfjl(+fvwf$=#'
     DEBUG = True
 
-ALLOWED_HOSTS = ['168.119.186.83', 'localhost', '127.0.0.1', 'alice.adase.org']
+ALLOWED_HOSTS = ['168.119.186.83', 'localhost', '127.0.0.1', 'alice.adase.org', 'alice.appliedai.tech']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8080',
@@ -41,7 +41,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://168.119.186.83:80',
 ]
 if env == 'prod':
-    CUSTOM_HOST = 'http://alice.adase.org'
+    CUSTOM_HOST = 'http://alice.appliedai.tech'
 else:
     CUSTOM_HOST = 'http://localhost:3000'
 

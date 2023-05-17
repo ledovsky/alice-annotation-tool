@@ -19,13 +19,14 @@ services:
     networks:
         - reverse-proxy
     ports:
-      - 8095:80
+      - 80:80
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - $HOME/alice_volumes/media:/django_media:ro
       - $HOME/alice_volumes/static:/django_static:ro
     depends_on:
       - back
+    restart: always
 
   postgres:
     image: postgres:13.1
@@ -48,6 +49,7 @@ services:
       - reverse-proxy
     ports:
       - 8097:6379
+    restart: always
     
   worker1:
     build: ./back
@@ -64,6 +66,7 @@ services:
     depends_on:
       - postgres
       - redis
+    restart: always
 
 networks:
     reverse-proxy:

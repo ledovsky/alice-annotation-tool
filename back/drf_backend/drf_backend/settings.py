@@ -33,12 +33,14 @@ else:
     SECRET_KEY = '*udtpxl4zo*0cy204%@kkag)!hr(drh_uzljyrfjl(+fvwf$=#'
     DEBUG = True
 
-ALLOWED_HOSTS = ['168.119.186.83', 'localhost', '127.0.0.1', 'alice.adase.org', 'alice.appliedai.tech']
+ALLOWED_HOSTS = ['168.119.186.83', 'localhost', '127.0.0.1', 'alice.adase.org', 
+                 'alice.appliedai.tech', 'http://158.160.50.14']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8080',
     'http://168.119.186.83:8080',
     'http://168.119.186.83:80',
+    'http://158.160.50.14:80'
 ]
 if env == 'prod':
     CUSTOM_HOST = 'http://alice.appliedai.tech'
@@ -150,6 +152,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication'
     ],
+    'EXCEPTION_HANDLER': 'drf_backend.utils.custom_exception_handler'
 }
 
 # Email settings

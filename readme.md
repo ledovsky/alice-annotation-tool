@@ -14,37 +14,7 @@ Run redis on 6379
 docker run --name some-redis -d -p 6379:6379 redis
 ```
 
-### Backend
-
-First, a virtual env should be created and activated
-
-```
-cd back
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-Copy .env.sample to .env.dev and paste necessary variables. Then you can export the variables via
-
-```
-set -o allexport; source .env.dev; set +o allexport
-```
-
-Backend runs at port 8000 using
-
-```
-cd back/drf_backend
-python manage.py runserver
-```
-
-Development db initialization could be used by
-
-```
-python manage.py init_dev_db
-```
-
-Admin user is created with login and password admin/admin
+Go through readme.md from backend
 
 
 ## How to set up dev

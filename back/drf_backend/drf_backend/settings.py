@@ -34,7 +34,7 @@ else:
     DEBUG = True
 
 ALLOWED_HOSTS = ['168.119.186.83', 'localhost', '127.0.0.1', 'alice.adase.org', 
-                 'alice.appliedai.tech', 'http://158.160.50.14']
+                 'alice.appliedai.tech', '158.160.50.14']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8080',

@@ -47,7 +47,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         'username': reset_password_token.user.username,
         'email': reset_password_token.user.email,
         'reset_password_url': "{}/reset-password?token={}".format(
-            settings.CUSTOM_HOST,
+            settings.FRONT_HOST,
             reset_password_token.key)
     }
 

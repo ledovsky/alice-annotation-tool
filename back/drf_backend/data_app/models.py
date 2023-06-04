@@ -1,5 +1,10 @@
+from collections import OrderedDict
 import json
 import pandas as pd
+from typing import List, Tuple
+
+import numpy as np
+from scipy.signal import decimate
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -29,9 +34,79 @@ class Subject(models.Model):
 
     class Meta:
         unique_together = ('dataset', 'name')
-
-    def __str__(self):
+    
+    def __str__(self) -> str:
         return f'Subject {self.name} {self.dataset.short_name}'
+    
+    def get_components_data(
+            self, n_seconds: int = None, offset_seconds: int = None, use_decimate: bool = False, 
+            decimate_min_sfreq=50) -> Tuple[np.ndarray, np.ndarray, float]:
+        """Returns ICA data points for the subject
+        Allows taking of the subsample and decimation
+
+        Returns:
+            ica_values: n_components x n_values
+            ica_epochs: n_components x n_values - epoch idx of each sample
+            sfreq: sampling frequency
+        """
+        ic_objs = (
+            ICAComponent
+                .objects
+                .filter(subject=self)
+                .order_by('name')
+        )
+
+        n_components = len(ic_objs)
+        if n_components == 0:
+            return None, None
+        
+        
+        ica_values = None
+        ica_epochs = None
+        sfreq = None
+
+        for idx, ic_obj in enumerate(ic_objs.iterator(chunk_size=1)):
+            ica_data_obj = ICAData.objects.get(ic=ic_obj)
+            ica_data = json.loads(ica_data_obj.ica_data)
+            if ica_values is None:
+                ica_values = np.empty(shape=(n_components, len(ica_data['value'])), dtype=np.float64)
+                ica_epochs = np.empty(shape=(n_components, len(ica_data['value'])), dtype=np.int64)
+            if sfreq is None:
+                sfreq = ic_obj.sfreq
+
+
+            ica_values[idx, :] = ica_data['value']
+            ica_epochs[idx, :] = ica_data['epoch']
+
+            del ica_data_obj
+            del ica_data
+        
+        if offset_seconds:
+            ica_values = ica_values[:, int(offset_seconds * sfreq) :]
+            ica_epochs = ica_epochs[:, int(offset_seconds * sfreq) :]
+        if n_seconds:
+            ica_values = ica_values[:, : int(n_seconds * sfreq)]
+            ica_epochs = ica_epochs[:, : int(n_seconds * sfreq)]
+
+        if use_decimate:
+            q = 1
+            while sfreq >= decimate_min_sfreq * 2:
+                sfreq /= 2
+                q *= 2
+                ica_values = decimate(ica_values, q=q, axis=1)
+                ica_epochs = ica_epochs[:, ::q]
+
+        return ica_values, ica_epochs, sfreq
+    
+    def get_ic_names(self) -> List[str]:
+        """Returns component names in ascending order"""
+        ic_objs = (
+            ICAComponent
+                .objects
+                .filter(subject=self)
+                .order_by('name')
+        )
+        return [ic.name for ic in ic_objs]
 
 
 class ICAData(models.Model):
@@ -65,7 +140,7 @@ class ICAComponent(models.Model):
         return pd.DataFrame(json.loads(ICAData.objects.get(ic=self).ica_data))
     
     def __str__(self):
-        return f'ICAComponent {self.name} {self.subject} {self.dataset.short_name}'
+        return f'ICComponent {self.name} {self.subject} {self.dataset.short_name}'
 
 
 class Annotation(models.Model):

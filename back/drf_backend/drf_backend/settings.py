@@ -17,6 +17,8 @@ from pathlib import Path
 import matplotlib
 matplotlib.use('Agg')
 
+import mne
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,29 +27,46 @@ if 'DJANGO_ENVIRONMENT' in os.environ and os.environ['DJANGO_ENVIRONMENT'] == 'p
     env = 'prod'
 else:
     env = 'dev'
-
-
-if env == 'prod':
-    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
-else:
-    SECRET_KEY = '*udtpxl4zo*0cy204%@kkag)!hr(drh_uzljyrfjl(+fvwf$=#'
     DEBUG = True
 
-ALLOWED_HOSTS = ['168.119.186.83', 'localhost', '127.0.0.1', 'alice.adase.org', 
-                 'alice.appliedai.tech', '158.160.50.14']
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8080',
-    'http://168.119.186.83:8080',
-    'http://168.119.186.83:80',
-    'http://158.160.50.14:80'
+
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
+FRONT_HOST = os.environ['DJANGO_FRONT_HOST']
+FRONT_PORT = os.environ['DJANGO_FRONT_PORT']
+
+ALLOWED_HOSTS = [
+    FRONT_HOST,
+    '127.0.0.1'
 ]
-if env == 'prod':
-    CUSTOM_HOST = 'http://alice.appliedai.tech'
-else:
-    CUSTOM_HOST = 'http://localhost:3000'
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:3000',
+]
+
+CELERY_BROKER_URL = os.environ['DJANGO_CELERY_BROKER_URL']
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ['DJANGO_POSTGRES_DATABASE'],
+        'USER': os.environ['DJANGO_POSTGRES_USER'],
+        'PASSWORD': os.environ['DJANGO_POSTGRES_PASSWORD'],
+        'HOST': os.environ['DJANGO_POSTGRES_HOST'],
+        'PORT': os.environ['DJANGO_POSTGRES_PORT'],
+    }
+}
+
+
 
 # Application definition
+
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+WSGI_APPLICATION = 'drf_backend.wsgi.application'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -77,7 +96,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'drf_backend.urls'
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ],
+    'EXCEPTION_HANDLER': 'drf_backend.utils.custom_exception_handler'
+}
 
 TEMPLATES = [
     {
@@ -95,42 +121,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'drf_backend.wsgi.application'
+# Urls
 
-
-if env == 'prod':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': os.environ['DJANGO_POSTGRES_PASSWORD'],
-            'HOST': os.environ['DJANGO_POSTGRES_HOST'],
-            'PORT': os.environ['DJANGO_POSTGRES_PORT'],
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': 'pwd',
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
-        }
-    }
-
-
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
+ROOT_URLCONF = 'drf_backend.urls'
 
 if env == 'prod':
     STATIC_ROOT = '/django_static/api-static'
@@ -145,15 +138,6 @@ STATIC_URL = '/api-static/'
 MEDIA_URL = '/media/'
 TMP_DIR = join(BASE_DIR, 'tmp')
 
-
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication'
-    ],
-    'EXCEPTION_HANDLER': 'drf_backend.utils.custom_exception_handler'
-}
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -185,25 +169,4 @@ if env == 'prod':
     }
 
 
-if env == 'prod':
-    CELERY_BROKER_URL = "redis://redis:6379/0"
-else:
-    CELERY_BROKER_URL = "redis://localhost:6379/0"
-
-# Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
-
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#     },
-# ]
+mne.set_log_level(verbose='ERROR')

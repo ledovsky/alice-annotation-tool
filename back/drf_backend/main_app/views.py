@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.views import View
@@ -23,6 +25,7 @@ from .serializers import (
     ICAListSerializer, ICADetailedSerializer, DatasetDetailedSerializer, AnnotationListSerializer, SubjectDetailedSerializer)
 from .models import ICAImages, ICALinks
 from .tasks import recalc_dataset
+from .vis import plot_components
 
 
 
@@ -145,3 +148,18 @@ class AnnotationListView(generics.ListCreateAPIView):
     queryset = Annotation.objects.all()
     filterset_fields = ['ic_id']
     permission_classes = [IsAuthenticated]
+
+
+class ComponentsPlotView(APIView):
+    """Returns Plotly JSON with components plot"""
+
+    def get(self, request, subject_id):
+        subject = Subject.objects.get(id=subject_id)
+        ic_names = subject.get_ic_names()
+        ica_values, ica_epochs, sfreq = subject.get_components_data(60, 0)
+        fig = plot_components(ica_values, ica_epochs, ic_names, sfreq)
+        fig_json = json.loads(fig.to_json())
+        return Response({
+            'figure': fig_json,
+            'subject_id': subject_id
+        })

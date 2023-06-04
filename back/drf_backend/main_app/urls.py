@@ -16,6 +16,8 @@ urlpatterns = [
 
     path('view/recalc-dataset/<int:pk>', views.RecalcDatasetView.as_view(), name='view-recalc-dataset'),
     path('view/celery-list', views.CeleryTasksList.as_view(), name='view-celery-list'),
+
+    path('view/subjects/components-plot/<int:subject_id>', views.ComponentsPlotView.as_view(), name='view-subjects-component-plot'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

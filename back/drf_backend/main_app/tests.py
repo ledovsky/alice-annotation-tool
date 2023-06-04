@@ -1,38 +1,56 @@
-from os.path import join
+from os.path import join, exists
 
 import pandas as pd
 import numpy as np
 import matplotlib
+import tempfile
 
-from django.test import TestCase
-from rest_framework.test import APIClient
-from rest_framework import status
+from django.test import TestCase, Client
 from django.apps import apps
 
-from .vis import plot_topomap, plot_epochs_image, plot_spectrum
-from .models import Dataset, ICAComponent
+from main_app.vis import plot_topomap, plot_epochs_image, plot_spectrum
+from main_app.models import ICAImages
+from data_app.init_test_db import init_test_db
+from data_app.models import ICAComponent
 
 
-app_path = apps.get_app_config('main_app').path
+app_path = apps.get_app_config('data_app').path
 
 
-class VisTest(TestCase):
+class TestUpdatePlots(TestCase):
+    temporary_dir = None
+
     def setUp(self):
-        self.sfreq = 160.
-        df_weights = pd.read_csv(join(app_path, 'test_data/ica_weights.csv'))
-        df_data = pd.read_csv(join(app_path, 'test_data/ica_data.csv'))
-        self.ica_component = df_weights['value'].values
-        self.ch_names = df_weights['ch_name'].values
-        self.df_data = df_data
+        init_test_db()
 
-    def test_topomap(self):
-        fig = plot_topomap(self.ica_component, self.ch_names)
-        self.assertEqual(matplotlib.figure.Figure == type(fig))
+    @classmethod
+    def setUpClass(cls):
+        cls.temporary_dir = tempfile.TemporaryDirectory(prefix='mediatest')
+        super(TestUpdatePlots, cls).setUpClass()
 
-    def test_spectrum(self):
-        fig = plot_spectrum(self.df_data, self.sfreq)
-        self.assertEqual(matplotlib.figure.Figure == type(fig))
+    @classmethod
+    def tearDownClass(cls):
+        cls.temporary_dir = None
+        super(TestUpdatePlots, cls).tearDownClass()
 
-    def test_epochs_image(self):
-        fig = plot_epochs_image(self.df_data)
-        self.assertEqual(matplotlib.figure.Figure == type(fig))
+    def test_make_plots(self):
+        print(self.temporary_dir.name)
+        with self.settings(MEDIA_ROOT=self.temporary_dir.name):
+            ICAImages.update_plots('test_dataset')
+            ic = ICAComponent.objects.all()[0]
+            assert exists(ic.x.get_image_path('topomap')) == True
+            assert exists(ic.x.get_image_path('spectrum')) == True
+            assert exists(ic.x.get_image_path('epochs_image')) == True
+
+
+class TestComponentsPlot(TestCase):
+    def setUp(self):
+        init_test_db()
+
+    def test_component_plot_view(self):
+        client = Client()
+        response = client.get('/api/view/subjects/components-plot/1')
+        assert response.status_code == 200
+        assert response.json()['subject_id'] == 1
+        assert 'data' in response.json()['figure']
+        assert 'layout' in response.json()['figure']

@@ -1,10 +1,12 @@
 import warnings
 
+import matplotlib.pyplot as plt
 import mne
 import numpy as np
-import matplotlib.pyplot as plt
-from plotly import graph_objects as go
 import plotly.express as px
+from plotly import graph_objects as go
+
+from data_app.models import ICAComponent
 
 
 def _get_epochs_from_df(ica_data, sfreq):
@@ -21,7 +23,6 @@ def _get_epochs_from_df(ica_data, sfreq):
 
     info = mne.io.meas_info.create_info(['ICA000'], sfreq=sfreq, ch_types="misc")
 
-    print(info)
     epochs_from_df = mne.EpochsArray(np_data, info)
 
     return epochs_from_df
@@ -121,7 +122,6 @@ def plot_spectrum(ica_data, sfreq):
     psd_args = {}
     psd_args['fmax'] = 75
 
-
     psds, freqs = mne.time_frequency.psd_multitaper(epochs_from_df, picks=[0], **psd_args)
     psd_ylabel, psds_mean, spectrum_std = _get_psd_label_and_std(
         psds[:, 0, :].copy(), dB, num_std)
@@ -144,7 +144,7 @@ def plot_spectrum(ica_data, sfreq):
     return fig
 
 
-def plot_sources(ics, sfreq):
+def plot_components(ica_values, ica_epochs, ic_names, sfreq):
     """
     Inspired by https://plotly.com/python/range-slider/
     """
@@ -154,9 +154,9 @@ def plot_sources(ics, sfreq):
     # define time when epoch changes
     epoch_change_time = []
     for idx, epoch_id, epoch_id_prev in zip(
-            np.arange(len(ics['IC000']['epoch'])),
-            ics['IC000']['epoch'][1:],
-            ics['IC000']['epoch']):
+            np.arange(ica_values.shape[1]),
+            ica_epochs[0, 1:],
+            ica_epochs[0, :]):
         if epoch_id != epoch_id_prev:
             epoch_change_time.append(idx / sfreq)
 
@@ -164,8 +164,8 @@ def plot_sources(ics, sfreq):
 
     fig.update_layout({'showlegend': False})
 
-    n_ics = len(ics)
-    step = 1 / n_ics
+    n_components = ica_values.shape[0]
+    step = 1 / n_components
 
     fig.update_layout({
         f'xaxis': {
@@ -185,8 +185,8 @@ def plot_sources(ics, sfreq):
             yref=f'paper',
             line=dict(color=palette[1], width=1.5))
 
-    for ic_idx, col_name in enumerate(reversed(ics.keys())):
-        time = np.arange(len(ics[col_name]['value'])) / sfreq
+    time = np.arange(ica_values.shape[1]) / sfreq
+    for ic_idx, col_name in enumerate(reversed(ic_names)):
         axis_idx = ic_idx + 1
         fig.update_layout({f'yaxis{axis_idx}': {
             'anchor': 'x',
@@ -198,7 +198,7 @@ def plot_sources(ics, sfreq):
         fig.add_trace(
             go.Scatter(
                 x=time,
-                y=ics[col_name]['value'],
+                y=ica_values[n_components - ic_idx - 1, :],
                 yaxis=f'y{ic_idx + 1}',
                 name=col_name,
                 mode='lines',
@@ -216,7 +216,7 @@ def plot_sources(ics, sfreq):
     # Update layout
     fig.update_layout({
         'dragmode': 'zoom',
-        'height': 40 * n_ics,
+        'height': 40 * n_components,
         'template': 'plotly_white',
         'margin': {
             't': 10,

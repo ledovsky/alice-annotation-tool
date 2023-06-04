@@ -7,8 +7,10 @@ function ComponentsPlot (props) {
   useEffect(() => {
     let data = props.data;
     let layout = props.layout;
-    Plotly.newPlot('components-plot', data, layout, {displayModeBar: false});
-  }, []);
+    if (data) {
+      Plotly.newPlot('components-plot', data, layout, {displayModeBar: false});
+    }
+  }, [props.data]);
 
   return (
     <div id="components-plot"></div>

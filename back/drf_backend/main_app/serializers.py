@@ -65,12 +65,32 @@ class ICALinksSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ICExtendedSerializer(serializers.ModelSerializer):
+    topomap_url = serializers.SerializerMethodField()
+    spectrum_url = serializers.SerializerMethodField()
+    epochs_image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ICAImages
+        fields = '__all__'
+    
+    def get_topomap_url(self, obj):
+        return obj.get_image_path('topomap', return_url=True)
+
+    def get_spectrum_url(self, obj):
+        return obj.get_image_path('spectrum', return_url=True)
+
+    def get_epochs_image_url(self, obj):
+        return obj.get_image_path('epochs_image', return_url=True)
+
+
 class ICAListSerializer(serializers.ModelSerializer):
 
     subject = SubjectDetailedSerializer()
     dataset = DatasetMinimalSerializer()
 
     images = ICAImagesTomopapSerializer()
+    x = ICExtendedSerializer()
 
     is_annotated = serializers.SerializerMethodField()
     annotation = serializers.SerializerMethodField()
@@ -86,6 +106,7 @@ class ICAListSerializer(serializers.ModelSerializer):
                   'uploaded_at',
                   'annotation',
                   'images',
+                  'x',
                   'is_annotated')
 
         read_only_fields = ('uploaded_by', 'uploaded_at', 'is_annotated', 'annotation')
@@ -110,24 +131,6 @@ class ICAListSerializer(serializers.ModelSerializer):
         except ObjectDoesNotExist:
             return {}
 
-
-class ICExtendedSerializer(serializers.ModelSerializer):
-    topomap_url = serializers.SerializerMethodField()
-    spectrum_url = serializers.SerializerMethodField()
-    epochs_image_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ICAImages
-        fields = '__all__'
-    
-    def get_topomap_url(self, obj):
-        return obj.get_image_path('topomap', return_url=True)
-
-    def get_spectrum_url(self, obj):
-        return obj.get_image_path('spectrum', return_url=True)
-
-    def get_epochs_image_url(self, obj):
-        return obj.get_image_path('epochs_image', return_url=True)
 
 
 class ICADetailedSerializer(serializers.ModelSerializer):

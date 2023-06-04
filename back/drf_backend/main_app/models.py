@@ -3,7 +3,6 @@ import os
 from os.path import join
 from collections import OrderedDict
 from typing import TypeVar, Type
-
 import matplotlib.pyplot as plt
 
 from django.db import models
@@ -111,16 +110,20 @@ class ICExtended(models.Model):
             ic_x.save()
         return ic_x
     
-    def get_image_dir(self, image_type: str, create: bool = False) -> str:
+    def get_image_dir(self, image_type: str, create: bool = False, return_url: bool = False) -> str:
         subject = self.ic.subject
         dataset = subject.dataset
+
+        if return_url:
+            return join(settings.MEDIA_URL, image_type, dataset.short_name, subject.name)
+
         path = join(settings.MEDIA_ROOT, image_type, dataset.short_name, subject.name)
         if create:
             os.makedirs(path, exist_ok=True)
         return path
 
-    def get_image_path(self, t: str, create_dir: bool = False) -> str:
-        return join(self.get_image_dir(t, create=create_dir), self.ic.name + '.png')
+    def get_image_path(self, t: str, create_dir: bool = False, return_url: bool = False) -> str:
+        return join(self.get_image_dir(t, create=create_dir, return_url=return_url), self.ic.name + '.png')
 
 
 

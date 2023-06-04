@@ -24,8 +24,14 @@ function SubjectView (props) {
       <div className="w-full max-w-xs px-6 py-6" key={ic.id}>
         <Link to={`/ic/${ic.id}/annotate`}>
           <p className="text-center font-bold">{ic.name}</p>
-          { ic.images ?
-            <img src={ic.images.img_topomap} alt=""/> : <div></div>
+          { ic.x ?
+            <img
+              src={
+                process.env.REACT_APP_MEDIA_URL 
+                ? process.env.REACT_APP_MEDIA_URL + ic.x.topomap_url : 
+                ic.x.topomap_url
+              } 
+              alt=""/> : <div></div>
           }
         </Link>
         <div className="w-full text-center content-center">

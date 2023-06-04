@@ -30,19 +30,19 @@ function ComponentAnnotation( props ) {
             <div className="w-full px-6 max-w-md">
               <p className="text-center font-bold">Topomap of the component</p>
               { props.ic.images ?
-                <img src={props.ic.images.img_topomap} alt=""/> : <div></div>
+                <img src={'http://localhost:8000/' + props.ic.x.topomap_url} alt=""/> : <div></div>
               }
             </div>
             <div className="w-full px-6 max-w-md">
               <p className="text-center font-bold">Spectrum</p>
               { props.ic.images ?
-                <img src={props.ic.images.img_spectrum} alt=""/> : <div></div>
+                <img src={props.ic.x.spectrum_url} alt=""/> : <div></div>
               }
             </div>
             <div className="w-full px-6 max-w-md">
               <p className="text-center font-bold">Epochs image</p>
               { props.ic.images ?
-                <img src={props.ic.images.img_epochs_image} alt=""/> : <div></div>
+                <img src={props.ic.x.epochs_image_url} alt=""/> : <div></div>
               }
             </div>
           </div>
@@ -58,8 +58,8 @@ function ComponentAnnotation( props ) {
                   //   config={{displayModeBar: false}}
                   // /> : <div></div>
                   <ComponentsPlot
-                    data={props.ic.images.img_sources_plot.data}
-                    layout={props.ic.images.img_sources_plot.layout}
+                    data={props.componentsPlotObj.data}
+                    layout={props.componentsPlotObj.layout}
                   /> : <div></div>
                 }
           </div>

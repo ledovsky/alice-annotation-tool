@@ -34,6 +34,7 @@ function ComponentAnnotationContainer( props ) {
   const [ ic, setIc ] = useState({});
   const [ dataset, setDataset ] = useState({});
   const [ subject, setSubject ] = useState({});
+  const [ componentsPlotObj, setComponentsPlotObj ] = useState({});
   const auth = useSelector(state => state.auth);
   let loggedIn = false;
   if (auth.token) {
@@ -65,6 +66,19 @@ function ComponentAnnotationContainer( props ) {
     fetchData();
   }, [ic_id, loggedIn]);
 
+  // load components plot
+  useEffect(() => {
+    async function fetchData() {
+      if (subject.id) {
+        let response = await Api.getJson(`view/subjects/components-plot/${subject.id}`);
+        if (response.subject_id) {
+          setComponentsPlotObj(response.figure);
+        }
+      }
+    }
+    fetchData();
+  }, [subject]);
+
   function handleInputChange (e) {
     const {name, checked} = e.target;
     setAnnotation({...annotation, [name]: checked});
@@ -92,7 +106,7 @@ function ComponentAnnotationContainer( props ) {
     <ComponentAnnotation 
       ic={ic} dataset={dataset} subject={subject} onChange={handleInputChange} handleCheck={handleCheck}
       onCommentFieldChange={handleCommentFieldChange} annotation={annotation} onSubmit={submit} 
-      loggedIn={loggedIn} loading={loading}/>    
+      loggedIn={loggedIn} componentsPlotObj={componentsPlotObj} loading={loading}/>    
   )
 }
 

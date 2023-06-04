@@ -111,11 +111,31 @@ class ICAListSerializer(serializers.ModelSerializer):
             return {}
 
 
+class ICExtendedSerializer(serializers.ModelSerializer):
+    topomap_url = serializers.SerializerMethodField()
+    spectrum_url = serializers.SerializerMethodField()
+    epochs_image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ICAImages
+        fields = '__all__'
+    
+    def get_topomap_url(self, obj):
+        return obj.get_image_path('topomap', return_url=True)
+
+    def get_spectrum_url(self, obj):
+        return obj.get_image_path('spectrum', return_url=True)
+
+    def get_epochs_image_url(self, obj):
+        return obj.get_image_path('epochs_image', return_url=True)
+
+
 class ICADetailedSerializer(serializers.ModelSerializer):
     # data_obj = ICADataSerializer()
     images = ICAImagesSerializer()
     links = ICALinksSerializer()
     subject = SubjectMinimalSerializer()
+    x = ICExtendedSerializer()
 
     class Meta:
         model = ICAComponent
@@ -125,6 +145,7 @@ class ICADetailedSerializer(serializers.ModelSerializer):
                   'dataset',
                   'sfreq',
                   'images',
+                  'x',
                   'links',
                   # 'data_obj',
                   'uploaded_by',

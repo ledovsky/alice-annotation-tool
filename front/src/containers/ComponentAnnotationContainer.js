@@ -47,10 +47,14 @@ function ComponentAnnotationContainer( props ) {
       let _ic = await Api.getJson(`view/ic/${ic_id}`);
       if (_ic.id) {
         setIc(_ic);
-        let _subject = await Api.getJson(`view/subjects/${_ic.subject.id}`);
-        setSubject(_subject);
-        let _dataset = await Api.getJson(`view/datasets/${_ic.dataset}`);
-        setDataset(_dataset);
+        if (_ic.subject.id != subject.id) {
+          let _subject = await Api.getJson(`view/subjects/${_ic.subject.id}`);
+          setSubject(_subject);
+        }
+        if (_ic.dataset.id != dataset.id) {
+          let _dataset = await Api.getJson(`view/datasets/${_ic.dataset}`);
+          setDataset(_dataset);
+        }
       }
 
       if (loggedIn) {

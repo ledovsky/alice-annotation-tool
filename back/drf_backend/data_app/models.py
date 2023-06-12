@@ -91,7 +91,7 @@ class Subject(models.Model):
             # migration to the new data format
             subject_ica_values = self.get_values()
             subject_ica_epochs = self.get_epochs()
-
+            sfreq = self.sfreq
         
         if offset_seconds:
             subject_ica_values = subject_ica_values[:, int(offset_seconds * sfreq) :]

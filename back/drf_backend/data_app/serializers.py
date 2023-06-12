@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -35,6 +36,11 @@ class ICACreateSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         data['data_obj'] = data.pop('data')
         return super().to_internal_value(data)
+    
+    def validate(self, data):
+        if not re.match('[0-9a-zA-Z_]+', data['subject']):
+            raise serializers.ValidationError('Subject may contain only latin letters, numbers and _')
+        return data
 
     def create(self, validated_data):
         ica_data = validated_data.pop('data_obj')

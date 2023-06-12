@@ -1,4 +1,5 @@
-from os.path import join
+from os.path import join, exists
+import re
 
 import pandas as pd
 import numpy as np
@@ -8,6 +9,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.apps import apps
+from django.conf import settings
 
 from data_app.models import Dataset, ICAComponent, Subject
 from data_app.init_test_db import init_test_db
@@ -69,3 +71,10 @@ class SubjectTest(TestCase):
     def test_get_ic_names(self) -> None:
         ic_names = Subject.objects.first().get_ic_names()
         assert ic_names[0] == 'IC000'
+    
+    def test_create_npy(self):
+        subject = Subject.objects.first()
+        subject.create_npy()
+        exists(join(settings.MEDIA_ROOT, 'ica_data/test_dataset/S7/values.npy'))
+        exists(join(settings.MEDIA_ROOT, 'ica_data/test_dataset/S7/epochs.npy'))
+        exists(join(settings.MEDIA_ROOT, 'ica_data/test_dataset/S7/weights.npy'))

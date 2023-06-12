@@ -5,7 +5,7 @@ from rest_framework import serializers
 from auth_app.serializers import UserSerializer
 from data_app.models import Dataset, Subject, Annotation, ICAComponent
 # from data_app.serializers import AnnotationSerializer
-from .models import DatasetStats, Annotation, ICAImages, ICALinks
+from .models import DatasetStats, ICAImages, ICALinks
 
 
 class DatasetStatsSerializer(serializers.ModelSerializer):

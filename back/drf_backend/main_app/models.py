@@ -9,7 +9,7 @@ from django.db import models
 from django.core.files.base import ContentFile
 from django.conf import settings
 
-from data_app.models import Dataset, ICAComponent, Annotation, ICAData
+from data_app.models import Dataset, ICAComponent
 from main_app.vis import plot_topomap, plot_spectrum, plot_epochs_image
 
 
@@ -23,34 +23,6 @@ class ICAImages(models.Model):
     img_spectrum = models.ImageField(upload_to='images/', null=True)
     img_epochs_image = models.ImageField(upload_to='images/', null=True)
     img_sources_plot = models.JSONField(null=True)
-
-    @staticmethod
-    def update_plots(dataset_short_name=None):
-        ics = ICAComponent.objects.all()
-        if dataset_short_name:
-            ics = ics.filter(dataset__short_name=dataset_short_name)
-
-        for ic in ics:
-            ic_x = ICExtended.get_or_create(ic.id)
-
-            save_opts = dict(format='png', dpi=200, bbox_inches='tight', transparent=True)
-
-            df_weights = ic.get_ica_weights()
-            df_data = ic.get_ica_data()
-
-            fig = plot_topomap(df_weights['value'].values, df_weights['ch_name'].values)
-            fig.savefig(ic_x.get_image_path('topomap', create_dir=True), **save_opts)
-            plt.close(fig)
-
-            fig = plot_spectrum(df_data, ic.sfreq)
-            fig.savefig(ic_x.get_image_path('spectrum', create_dir=True), **save_opts)
-            plt.close(fig)
-
-            fig = plot_epochs_image(df_data, ic.sfreq)
-            fig.savefig(ic_x.get_image_path('epochs_image', create_dir=True), **save_opts)
-            plt.close(fig)
-
-            ic_x.img_ready = True
 
 
 class ICALinks(models.Model):
@@ -82,22 +54,51 @@ class ICExtended(models.Model):
     prev = models.OneToOneField(ICAComponent, null=True, on_delete=models.SET_NULL, related_name='link_from_next')
     next = models.OneToOneField(ICAComponent, null=True, on_delete=models.SET_NULL, related_name='link_from_prev')
 
-    @staticmethod
-    def update_links(dataset_short_name: str) -> None:
+    @classmethod
+    def update_links(cls: Type[T], dataset_short_name: str) -> None:
         ics = ICAComponent.objects.filter(dataset__short_name=dataset_short_name).order_by('subject', 'name')
         prev = None
         for ic in ics:
             if not hasattr(ic, 'links'):
                 links = ICALinks(ic=ic)
+                ic_x = cls.get_or_create(ic.id)
                 links.save()
             if prev is not None:
                 links = ic.links
                 links.prev = prev
                 links.save()
+                ic_x.prev = prev
+                ic_x.save()
+
                 links = prev.links
+                prev_ic_x = prev.x
                 links.next = ic
                 links.save()
+                prev_ic_x.next = ic
+                prev_ic_x.save()
+
             prev = ic
+    
+    def update_plots(self) -> None:
+        save_opts = dict(format='png', dpi=200, bbox_inches='tight', transparent=True)
+
+        df_weights = self.ic.get_ica_weights()
+        df_data = self.ic.get_ica_data()
+
+        fig = plot_topomap(df_weights['value'].values, df_weights['ch_name'].values)
+        fig.savefig(self.get_image_path('topomap', create_dir=True), **save_opts)
+        plt.close(fig)
+
+        fig = plot_spectrum(df_data, self.ic.sfreq)
+        fig.savefig(self.get_image_path('spectrum', create_dir=True), **save_opts)
+        plt.close(fig)
+
+        fig = plot_epochs_image(df_data, self.ic.sfreq)
+        fig.savefig(self.get_image_path('epochs_image', create_dir=True), **save_opts)
+        plt.close(fig)
+
+        self.img_ready = True
+        self.save()
     
     @classmethod
     def get_or_create(cls: Type[T], ic_id: int) -> T:

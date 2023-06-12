@@ -69,6 +69,7 @@ class ICAListBySubjectView(APIView):
             .order_by('subject__name', 'name')
             .filter(subject=subject_id)
         )
+        print(queryset.query)
         context = {
             'request': request,
         }

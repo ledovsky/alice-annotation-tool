@@ -6,8 +6,6 @@ import numpy as np
 import plotly.express as px
 from plotly import graph_objects as go
 
-from data_app.models import ICAComponent
-
 
 def _get_epochs_from_df(ica_data, sfreq):
     epochs = ica_data['epoch'].unique()

@@ -2,22 +2,20 @@ from os.path import join, exists
 
 import pandas as pd
 import numpy as np
-import matplotlib
 import tempfile
 
 from django.test import TestCase, Client
 from django.apps import apps
 
-from main_app.vis import plot_topomap, plot_epochs_image, plot_spectrum
-from main_app.models import ICAImages
 from data_app.init_test_db import init_test_db
-from data_app.models import ICAComponent
+from data_app.models import ICAComponent, Subject
+from .tasks import update_ic_plots, update_links
 
 
 app_path = apps.get_app_config('data_app').path
 
 
-class TestUpdatePlots(TestCase):
+class TestUpdateICPlots(TestCase):
     temporary_dir = None
 
     def setUp(self):
@@ -26,21 +24,17 @@ class TestUpdatePlots(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temporary_dir = tempfile.TemporaryDirectory(prefix='mediatest')
-        super(TestUpdatePlots, cls).setUpClass()
+        super(TestUpdateICPlots, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         cls.temporary_dir = None
-        super(TestUpdatePlots, cls).tearDownClass()
+        super(TestUpdateICPlots, cls).tearDownClass()
 
     def test_make_plots(self):
         print(self.temporary_dir.name)
         with self.settings(MEDIA_ROOT=self.temporary_dir.name):
-            ICAImages.update_plots('test_dataset')
-            ic = ICAComponent.objects.all()[0]
-            assert exists(ic.x.get_image_path('topomap')) == True
-            assert exists(ic.x.get_image_path('spectrum')) == True
-            assert exists(ic.x.get_image_path('epochs_image')) == True
+            update_ic_plots('test_dataset')
 
 
 class TestComponentsPlot(TestCase):
@@ -54,3 +48,37 @@ class TestComponentsPlot(TestCase):
         assert response.json()['subject_id'] == 1
         assert 'data' in response.json()['figure']
         assert 'layout' in response.json()['figure']
+
+
+class TestComponentsPlotNpy(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temporary_dir = tempfile.TemporaryDirectory(prefix='mediatest')
+        super(TestComponentsPlotNpy, cls).setUpClass()
+
+    def setUp(self):
+        init_test_db()
+        with self.settings(MEDIA_ROOT=self.temporary_dir.name):
+            subjects = Subject.objects.all()
+            for subject in subjects:
+                subject.create_npy()
+
+    def test_component_plot_view(self):
+        with self.settings(MEDIA_ROOT=self.temporary_dir.name):
+            client = Client()
+            response = client.get('/api/view/subjects/components-plot/1')
+            assert response.status_code == 200
+            assert response.json()['subject_id'] == 1
+            assert 'data' in response.json()['figure']
+            assert 'layout' in response.json()['figure']
+
+
+class TestUpdateLinks(TestCase):
+    def setUp(self):
+        init_test_db()
+
+    def test_component_plot_view(self):
+        update_links('test_dataset')
+        ics = ICAComponent.objects.filter(subject__name='S7').order_by('name')
+        assert ics[1].x.prev is not None
+        assert ics[1].x.next is not None

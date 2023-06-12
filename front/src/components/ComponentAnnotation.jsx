@@ -64,7 +64,7 @@ function ComponentAnnotation( props ) {
           <div className="flex">
             <div className="w-full p-6">
                 <p className="text-center font-bold mb-3">Components plot</p>
-                { props.ic.images && props.ic.images.img_sources_plot ?
+                { props.componentsPlotObj ?
                   <ComponentsPlot
                     data={props.componentsPlotObj.data}
                     layout={props.componentsPlotObj.layout}

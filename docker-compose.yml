@@ -1,0 +1,73 @@
+version: "3"
+
+services:
+  back:
+    build: ./back
+    networks:
+        - reverse-proxy
+    ports:
+      - 8094:8000
+    env_file: ./back/.env
+    volumes:
+      - $HOME/alice_volumes/media:/django_media
+      - $HOME/alice_volumes/static:/django_static
+      - $HOME/alice_volumes/out:/django_out
+    depends_on:
+      - postgres
+  nginx:
+    build: .
+    networks:
+        - reverse-proxy
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - $HOME/alice_volumes/media:/django_media:ro
+      - $HOME/alice_volumes/static:/django_static:ro
+    depends_on:
+      - back
+    restart: always
+
+  postgres:
+    image: postgres:13.1
+    networks:
+        - reverse-proxy
+    ports:
+      - 8096:5432
+    env_file: ./postgres/.env
+    volumes:
+      - $HOME/alice_volumes/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  redis:
+    image: redis:latest
+    networks:
+      - reverse-proxy
+    ports:
+      - 8097:6379
+    restart: always
+    
+  worker1:
+    build: ./back
+    env_file: ./back/.env
+    volumes:
+      - $HOME/alice_volumes/media:/django_media
+      - $HOME/alice_volumes/static:/django_static
+      - $HOME/alice_volumes/out:/django_out
+    command:
+      - /bin/bash 
+      - /back/entrypoint_celery.sh
+    networks:
+      - reverse-proxy
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+
+networks:
+    reverse-proxy:
+        external: true

@@ -1,0 +1,165 @@
+import json
+
+from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.views import View
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
+
+from rest_framework.parsers import JSONParser, FileUploadParser
+from rest_framework import mixins
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
+from rest_framework.filters import SearchFilter
+from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+from data_app.views import DatasetOperationsBaseView
+from data_app.models import Dataset, Subject, Annotation, ICAComponent
+from drf_backend.celery import app
+from .serializers import (
+    ICAListSerializer, ICADetailedSerializer, DatasetDetailedSerializer, AnnotationListSerializer, SubjectDetailedSerializer)
+from .models import ICAImages, ICALinks
+from .tasks import recalc_dataset
+from .vis import plot_components
+
+
+
+class APIRootView(APIView):
+    def get(self, request):
+        data = {
+
+            ### auth_app
+            'auth': reverse('auth', request=request),
+
+            ### data_app
+            'data-ic': reverse('data-ic', request=request),
+            'data-dataset-reset': reverse('data-dataset-reset', request=request, args=[1]),
+            'data-dataset-lock': reverse('data-dataset-lock', request=request, args=[1]),
+            'data-dataset-unlock': reverse('data-dataset-unlock', request=request, args=[1]),
+            'data-user-annotation-by-ic': reverse('data-user-annotation-by-ic', request=request, args=[1]),
+            'downloads-actual': reverse('downloads-actual', request=request),
+
+            ## main_app
+            'view-ic-list-by-subject': reverse('view-ic-list-by-subject', request=request, args=[1]),
+            'view-ic-retrieve': reverse('view-ic-retrieve', request=request, args=[1]),
+            'view-annotations-list': reverse('view-annotations-list', request=request),
+            'view-datasets-list': reverse('view-datasets-list', request=request),
+            'view-subjects-list': reverse('view-subjects-list-by-dataset', request=request, args=[1]),
+            'view-datasets-retrieve': reverse('view-datasets-retrieve', request=request, args=[1]),
+            'view-subjects-retrieve': reverse('view-subjects-retrieve', request=request, args=[1]),
+
+            'view-recalc-dataset': reverse('view-recalc-dataset', request=request, args=[1]),
+            'view-celery-list': reverse('view-celery-list', request=request),
+        }
+        return Response(data)
+
+
+class ICAListBySubjectView(APIView):
+    serializer_class = ICAListSerializer
+
+    def get(self, request, subject_id):
+        queryset = (ICAComponent
+            .objects
+            .all()
+            .order_by('subject__name', 'name')
+            .filter(subject=subject_id)
+        )
+        context = {
+            'request': request,
+        }
+        serializer = self.serializer_class(queryset, many=True, context=context)
+        return Response(serializer.data)
+        
+
+
+class ICADetailedView(generics.RetrieveAPIView):
+    serializer_class = ICADetailedSerializer
+    queryset = ICAComponent.objects.all()
+
+
+class DatasetListView(generics.ListAPIView):
+    serializer_class = DatasetDetailedSerializer
+    queryset = Dataset.objects.all()
+
+
+class SubjectListView(APIView):
+    serializer_class = SubjectDetailedSerializer
+
+    def get(self, request, dataset_id):
+        queryset = (Subject
+            .objects
+            .all()
+            .order_by('name')
+            .filter(dataset=dataset_id)
+        )
+        context = {
+            'request': request,
+        }
+        serializer = self.serializer_class(queryset, many=True, context=context)
+        return Response(serializer.data)
+
+
+class DatasetRetrieveView(generics.RetrieveAPIView):
+    serializer_class = DatasetDetailedSerializer
+    queryset = Dataset.objects.all()
+
+
+class SubjectRetrieveView(generics.RetrieveAPIView):
+    serializer_class = SubjectDetailedSerializer
+    queryset = Subject.objects.all()
+
+
+
+class RecalcDatasetView(APIView):
+    """Runs dataset recalculation in an async manner"""
+    permission_classes = [IsAdminUser]
+
+    def get_object(self, pk):
+        try:
+            return Dataset.objects.get(pk=pk)
+        except Dataset.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        dataset = self.get_object(pk)
+        recalc_dataset.delay(dataset.short_name)
+        return Response({'status': 'ok'})
+
+
+class CeleryTasksList(APIView):
+    """Lists celery tasks"""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        i = app.control.inspect()
+        res = {}
+        res['active'] = i.active()
+        res['reserved'] = i.reserved()
+        return Response(res)
+
+
+class AnnotationListView(generics.ListCreateAPIView):
+    serializer_class = AnnotationListSerializer
+    queryset = Annotation.objects.all()
+    filterset_fields = ['ic_id']
+    permission_classes = [IsAuthenticated]
+
+
+class ComponentsPlotView(APIView):
+    """Returns Plotly JSON with components plot"""
+
+    def get(self, request, subject_id):
+        subject = Subject.objects.get(id=subject_id)
+        ic_names = subject.get_ic_names()
+        ica_values, ica_epochs, sfreq = subject.get_components_data(60, 0)
+        fig = plot_components(ica_values, ica_epochs, ic_names, sfreq)
+        fig_json = json.loads(fig.to_json())
+        return Response({
+            'figure': fig_json,
+            'subject_id': subject_id
+        })

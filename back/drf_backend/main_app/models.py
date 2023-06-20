@@ -132,6 +132,7 @@ class DatasetStats(models.Model):
     dataset = models.OneToOneField(Dataset, related_name='stats', on_delete=models.CASCADE)
     n_components = models.IntegerField(default=0)
     n_components_with_images = models.IntegerField(default=0)
+    n_components_with_annotations = models.IntegerField(default=0)
     n_annotations = models.IntegerField(default=0)
     n_users = models.IntegerField(default=0)
     updated = models.DateTimeField(null=True)
@@ -150,6 +151,7 @@ class DatasetStats(models.Model):
         for stat_obj in stats:
             n_components = 0
             n_components_with_images = 0
+            n_components_with_annotations = 0
             n_users = 0
             n_annotatons = 0
             if hasattr(stat_obj.dataset, 'ics'):
@@ -162,13 +164,18 @@ class DatasetStats(models.Model):
             annotations = Annotation.objects.filter(ic__dataset=stat_obj.dataset)
             n_annotatons = len(annotations)
             user_ids = set()
+            ic_ids = set()
             for annotation in annotations:
                 user_ids.add(annotation.user.id)
+                ic_ids.add(annotation.ic.id)
             n_users = len(user_ids)
+            n_components_with_annotations = len(ic_ids)
 
             stat_obj.n_components = n_components
             stat_obj.n_users = n_users
             stat_obj.n_annotations = n_annotatons
+            stat_obj.n_components_with_annotations = n_components_with_annotations
+            stat_obj.n_components_with_images = n_components_with_images
             stat_obj.updated = datetime.datetime.now()
             stat_obj.save()
 

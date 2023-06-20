@@ -11,7 +11,8 @@ from .models import DatasetStats, ICAImages, ICALinks
 class DatasetStatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatasetStats
-        fields = ('dataset', 'n_components', 'agreement')
+        fields = ('dataset', 'n_components', 'n_components_with_images', 
+                  'n_components_with_annotations', 'n_annotations', 'n_users')
 
 
 class DatasetMinimalSerializer(serializers.ModelSerializer):

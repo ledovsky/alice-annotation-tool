@@ -92,3 +92,14 @@ class TestUpdateDatasetStats(TestCase):
 
     def test_update_dataset_stats(self):
         update_dataset_stats()
+
+
+class TestDatasetViewList(TestCase):
+    def setUp(self):
+        init_test_db()
+        update_dataset_stats()
+
+    def test_dataset_view_list(self):
+        client = Client()
+        response = client.get(f'/api/view/datasets/list')
+        assert response.status_code == 200

@@ -1,4 +1,4 @@
-import json
+import datetime
 import os
 from os.path import join
 from collections import OrderedDict
@@ -9,7 +9,7 @@ from django.db import models
 from django.core.files.base import ContentFile
 from django.conf import settings
 
-from data_app.models import Dataset, ICAComponent
+from data_app.models import Dataset, ICAComponent, Annotation
 from main_app.vis import plot_topomap, plot_spectrum, plot_epochs_image
 
 
@@ -131,13 +131,16 @@ class ICExtended(models.Model):
 class DatasetStats(models.Model):
     dataset = models.OneToOneField(Dataset, related_name='stats', on_delete=models.CASCADE)
     n_components = models.IntegerField(default=0)
-    agreement = models.FloatField(default=0)
+    n_components_with_images = models.IntegerField(default=0)
+    n_annotations = models.IntegerField(default=0)
+    n_users = models.IntegerField(default=0)
+    updated = models.DateTimeField(null=True)
 
     class Meta:
         verbose_name_plural = 'DatasetStats'
 
     @staticmethod
-    def update_stats():
+    def update_stats() -> None:
         datasets = Dataset.objects.all()
         for dataset in datasets:
             if not hasattr(dataset, 'stats'):
@@ -146,7 +149,31 @@ class DatasetStats(models.Model):
         stats = DatasetStats.objects.all()
         for stat_obj in stats:
             n_components = 0
+            n_components_with_images = 0
+            n_users = 0
+            n_annotatons = 0
             if hasattr(stat_obj.dataset, 'ics'):
-                n_components = len(stat_obj.dataset.ics.all())
+                ics = stat_obj.dataset.ics.all()
+                n_components = len(ics)
+                for ic in ics:
+                    ic_x = ICExtended.get_or_create(ic.id)
+                    if ic_x.img_ready:
+                        n_components_with_images += 1
+            annotations = Annotation.objects.filter(ic__dataset=stat_obj.dataset)
+            n_annotatons = len(annotations)
+            user_ids = set()
+            for annotation in annotations:
+                user_ids.add(annotation.user.id)
+            n_users = len(user_ids)
+
             stat_obj.n_components = n_components
+            stat_obj.n_users = n_users
+            stat_obj.n_annotations = n_annotatons
+            stat_obj.updated = datetime.datetime.now()
             stat_obj.save()
+
+
+class CeleryLog(models.Model):
+    task = models.CharField(max_length=128, null=False)
+    success = models.BooleanField(default=False)
+    dttm = models.DateTimeField(auto_now=True)

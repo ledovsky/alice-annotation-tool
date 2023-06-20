@@ -27,56 +27,60 @@ def _get_epochs_from_df(ica_data, sfreq):
 
 
 def plot_epochs_image(ica_data, sfreq):
-    epochs_from_df = _get_epochs_from_df(ica_data, sfreq)
-    return mne.viz.epochs.plot_epochs_image(epochs_from_df, picks=[0], title="",
-                                            combine=None, colorbar=False, show=False)[0]
+    with warnings.catch_warnings():  # mean of empty slice
+        warnings.simplefilter('ignore')
+        epochs_from_df = _get_epochs_from_df(ica_data, sfreq)
+        return mne.viz.epochs.plot_epochs_image(epochs_from_df, picks=[0], title="",
+                                                combine=None, colorbar=False, show=False)[0]
 
 
 def plot_topomap(ica_component, ch_names):
 
-    fig, ax = plt.subplots()
+    with warnings.catch_warnings():  # mean of empty slice
+        warnings.simplefilter('ignore')
+        fig, ax = plt.subplots()
 
-    head_pos = None
-    outlines = 'head'
+        head_pos = None
+        outlines = 'head'
 
-    res = 64
-    contours = 6
-    sensors = True
-    image_interp = 'bilinear'
-    show = True
-    extrapolate = 'box'
-    head_pos = None
-    border = 0
+        res = 64
+        contours = 6
+        sensors = True
+        image_interp = 'bilinear'
+        show = True
+        extrapolate = 'box'
+        head_pos = None
+        border = 0
 
-    # channels_to_use = [ch.lower() for ch in ica_epochs.info['ch_names']]
-    channels_to_use = ch_names
+        # channels_to_use = [ch.lower() for ch in ica_epochs.info['ch_names']]
+        channels_to_use = ch_names
 
-    ten_twenty_montage = mne.channels.make_standard_montage('standard_1020')
+        ten_twenty_montage = mne.channels.make_standard_montage('standard_1020')
 
-    # get channels in format of ten_twenty_montage in right order
-    ten_twenty_montage_channels = {ch.lower(): ch for ch in ten_twenty_montage.ch_names}
-    channels_to_use_ = [ten_twenty_montage_channels[ch] for ch in channels_to_use]
+        # get channels in format of ten_twenty_montage in right order
+        ten_twenty_montage_channels = {ch.lower(): ch for ch in ten_twenty_montage.ch_names}
+        channels_to_use_ = [ten_twenty_montage_channels[ch] for ch in channels_to_use]
 
-    # create Info object to store info
-    info = mne.io.meas_info.create_info(channels_to_use_, sfreq=256, ch_types="eeg")
+        # create Info object to store info
+        info = mne.io.meas_info.create_info(channels_to_use_, sfreq=256, ch_types="eeg")
 
-    # using temporary RawArray to apply mongage to info
-    mne.io.RawArray(np.zeros((len(channels_to_use_), 1)), info, copy=None).set_montage(ten_twenty_montage)
+        # using temporary RawArray to apply mongage to info
+        mne.io.RawArray(np.zeros((len(channels_to_use_), 1)), info, copy=None).set_montage(ten_twenty_montage)
 
-    # pick channels
-    channels_to_use_ = [ch for ch in info.ch_names if ch.lower() in channels_to_use]
-    info.pick_channels(channels_to_use_)
+        # pick channels
+        channels_to_use_ = [ch for ch in info.ch_names if ch.lower() in channels_to_use]
+        info.pick_channels(channels_to_use_)
 
-    data_picks, pos, merge_channels, names, _, sphere, clip_origin = mne.viz.topomap._prepare_topomap_plot(info, 'eeg')
+        data_picks, pos, merge_channels, names, _, sphere, clip_origin = mne.viz.topomap._prepare_topomap_plot(info, 'eeg')
 
-    outlines = mne.viz.topomap._make_head_outlines(sphere, pos, outlines, clip_origin)
+        outlines = mne.viz.topomap._make_head_outlines(sphere, pos, outlines, clip_origin)
 
-    mne.viz.topomap.plot_topomap(
-        ica_component.ravel(), pos, res=res,
-        outlines=outlines, contours=contours, sensors=sensors,
-        image_interp=image_interp, show=show, extrapolate=extrapolate,
-        sphere=sphere, border=border, axes=ax
-    )
+        mne.viz.topomap.plot_topomap(
+            ica_component.ravel(), pos, res=res,
+            outlines=outlines, contours=contours, sensors=sensors,
+            image_interp=image_interp, show=show, extrapolate=extrapolate,
+            sphere=sphere, border=border, axes=ax
+        )
 
     return fig
 

@@ -37,6 +37,7 @@ class Subject(models.Model):
     has_npy = models.BooleanField(default=False)
     sfreq = models.FloatField(null=True)
     ch_names = models.TextField(null=True)
+    n_points = models.IntegerField(null=True)
 
     class Meta:
         unique_together = ('dataset', 'name')
@@ -159,6 +160,7 @@ class Subject(models.Model):
             if idx == 0:
                 self.sfreq = ic_obj.sfreq
                 self.ch_names = ica_weights['ch_name']
+                self.n_points = len(ica_data['value'])
                 self.save()
 
                 subject_ica_values = np.empty(shape=(n_components, len(ica_data['value'])), dtype=np.float64)

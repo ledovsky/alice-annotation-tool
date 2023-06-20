@@ -24,7 +24,7 @@ from drf_backend.celery import app
 from .serializers import (
     ICAListSerializer, ICADetailedSerializer, DatasetDetailedSerializer, AnnotationListSerializer, SubjectDetailedSerializer)
 from .models import ICAImages, ICALinks
-from .tasks import recalc_dataset
+from .tasks import update_ic_plots
 from .vis import plot_components
 
 
@@ -69,7 +69,6 @@ class ICAListBySubjectView(APIView):
             .order_by('subject__name', 'name')
             .filter(subject=subject_id)
         )
-        print(queryset.query)
         context = {
             'request': request,
         }
@@ -128,7 +127,7 @@ class RecalcDatasetView(APIView):
 
     def get(self, request, pk):
         dataset = self.get_object(pk)
-        recalc_dataset.delay(dataset.short_name)
+        update_ic_plots.delay(dataset.short_name)
         return Response({'status': 'ok'})
 
 

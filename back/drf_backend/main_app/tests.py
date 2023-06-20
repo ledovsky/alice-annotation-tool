@@ -9,7 +9,7 @@ from django.apps import apps
 
 from data_app.init_test_db import init_test_db
 from data_app.models import ICAComponent, Subject
-from .tasks import update_ic_plots, update_links
+from .tasks import update_ic_plots, update_links, update_dataset_stats
 
 
 app_path = apps.get_app_config('data_app').path
@@ -43,9 +43,10 @@ class TestComponentsPlot(TestCase):
 
     def test_component_plot_view(self):
         client = Client()
-        response = client.get('/api/view/subjects/components-plot/1')
+        subject_id = Subject.objects.all()[0].id
+        response = client.get(f'/api/view/subjects/components-plot/{subject_id}')
         assert response.status_code == 200
-        assert response.json()['subject_id'] == 1
+        assert response.json()['subject_id'] == subject_id
         assert 'data' in response.json()['figure']
         assert 'layout' in response.json()['figure']
 
@@ -66,9 +67,10 @@ class TestComponentsPlotNpy(TestCase):
     def test_component_plot_view(self):
         with self.settings(MEDIA_ROOT=self.temporary_dir.name):
             client = Client()
-            response = client.get('/api/view/subjects/components-plot/1')
+            subject_id = Subject.objects.all()[0].id
+            response = client.get(f'/api/view/subjects/components-plot/{subject_id}')
             assert response.status_code == 200
-            assert response.json()['subject_id'] == 1
+            assert response.json()['subject_id'] == subject_id
             assert 'data' in response.json()['figure']
             assert 'layout' in response.json()['figure']
 
@@ -82,3 +84,11 @@ class TestUpdateLinks(TestCase):
         ics = ICAComponent.objects.filter(subject__name='S7').order_by('name')
         assert ics[1].x.prev is not None
         assert ics[1].x.next is not None
+
+
+class TestUpdateDatasetStats(TestCase):
+    def setUp(self):
+        init_test_db()
+
+    def test_update_dataset_stats(self):
+        update_dataset_stats()

@@ -61,12 +61,12 @@ class ICExtended(models.Model):
         for ic in ics:
             if not hasattr(ic, 'links'):
                 links = ICALinks(ic=ic)
-                ic_x = cls.get_or_create(ic.id)
                 links.save()
             if prev is not None:
                 links = ic.links
                 links.prev = prev
                 links.save()
+                ic_x = cls.get_or_create(ic.id)
                 ic_x.prev = prev
                 ic_x.save()
 

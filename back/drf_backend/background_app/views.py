@@ -7,21 +7,36 @@ from rest_framework.pagination import LimitOffsetPagination
 
 from data_app.models import Dataset
 from .models import BackgroundTask
-from .serializers import RunBackgroundTaskSerializer, BackgroundTaskSerializer
-from .tasks import update_ic_plots, update_links
+from .serializers import (
+    RunDatasetBackgroundTaskSerializer, 
+    RunBackgroundTaskSerializer,
+    BackgroundTaskSerializer
+)
+from .tasks import update_ic_plots, update_links, update_dataset_stats
 
 
 class RunDatasetBackgroundTaskView(APIView):
     permission_classes = [IsAdminUser]
 
     def post(self, request: HttpRequest):
-        serializer = RunBackgroundTaskSerializer(data=request.data)
+        serializer = RunDatasetBackgroundTaskSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         dataset_short_name = Dataset.objects.get(id=serializer.data['dataset_id']).short_name
         if serializer.data['task_name'] == 'update-ic-plots':
             update_ic_plots.delay(dataset_short_name)
         elif serializer.data['task_name'] == 'update-links':
             update_links.delay(dataset_short_name)
+        return Response({'status': 'ok'})
+
+
+class RunBackgroundTaskView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request: HttpRequest):
+        serializer = RunBackgroundTaskSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.data['task_name'] == 'update-dataset-stats':
+            update_dataset_stats.delay()
         return Response({'status': 'ok'})
 
 

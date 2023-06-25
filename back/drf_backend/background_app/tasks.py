@@ -19,6 +19,7 @@ def celery_task_inner(task_name: str, details: str, callable: Callable):
     except Exception as e:
         celery_log.status = 'failed'
         message = f'Failed Celery job {task_name}\n{e.args[0]}'
+        print(message)
         bot_send(message)
         celery_log.status = 'failed'
     finally:

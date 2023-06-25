@@ -44,6 +44,37 @@ class TestRunDatasetBackgroudTaskView(TestCase):
             assert background_tasks[1].status == 'success'
 
 
+class TestRunBackgroudTaskView(TestCase):
+    temporary_dir = None
+
+    def setUp(self) -> None:
+        init_test_db()
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.temporary_dir = tempfile.TemporaryDirectory(prefix='mediatest')
+        super(TestRunBackgroudTaskView, cls).setUpClass()
+
+    def test_dataset_view_list(self) -> None:
+        client = Client()
+        client.login(username='admin', password='admin')
+        with self.settings(
+            MEDIA_ROOT=self.temporary_dir.name,
+            CELERY_TASK_ALWAYS_EAGER=True,
+        ):
+            data = {'task_name': 'update-dataset-stats'}
+            response = client.post(reverse('background-run'), data=data)
+            assert response.status_code == 200
+
+            background_tasks = BackgroundTask.objects.all()
+            assert len(background_tasks) == 1
+            assert background_tasks[0].status == 'success'
+
+            data = {'task_name': 'some-wrong-task'}
+            response = client.post(reverse('background-run'), data=data)
+            assert response.status_code == 400
+
+
 class TestBackgroundTaskView(TestCase):
     def setUp(self) -> None:
         init_test_db()

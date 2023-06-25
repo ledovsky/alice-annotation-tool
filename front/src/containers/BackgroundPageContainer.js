@@ -6,7 +6,7 @@ import Api from '../api';
 
 function BackgroundPageContainer (props) {
 
-  const taskOptions = [
+  const datasetTaskOptions = [
     {
         name: 'Update plots',
         value: 'update-ic-plots'
@@ -15,9 +15,16 @@ function BackgroundPageContainer (props) {
         name: 'Update links',
         value: 'update-links'
     },
-  ]
+  ];
+  const generalTaskOptions = [
+    {
+        name: 'Update dataset stats',
+        value: 'update-dataset-stats'
+    },
+  ];
   const [ datasets, setDatasets ] = useState([]);
-  const [ selectedTask, setSelectedTask ] = useState(taskOptions[0].value);
+  const [ selectedDatasetTask, setSelectedDatasetTask ] = useState(datasetTaskOptions[0].value);
+  const [ selectedGeneralTask, setSelectedGeneralTask ] = useState(generalTaskOptions[0].value);
   const [ selectedDataset, setSelectedDataset ] = useState(-1);
   const [ tasks, setTasks ] = useState([]);
 
@@ -36,12 +43,26 @@ function BackgroundPageContainer (props) {
     setSelectedDataset(e.target.value);
   }
 
-  async function onSelectTask(e) {
-    setSelectedTask(e.target.value);
+  async function onSelectDatasetTask(e) {
+    setSelectedDatasetTask(e.target.value);
   }
 
-  async function onSubmit() {
-    let response = await Api.post(`background/run-dataset`, {dataset_id: selectedDataset, task_name: selectedTask});
+  async function onSelectGeneralTask(e) {
+    setSelectedGeneralTask(e.target.value);
+  }
+
+  async function onSubmitDatasetTask() {
+    let response = await Api.post(`background/run-dataset`, {dataset_id: selectedDataset, task_name: selectedDatasetTask});
+    let data = await response.json();
+    if (data.status == 'ok') {
+        toast.success('Task successfully started');
+    } else {
+        toast.error('Something has gone wrong');
+    }
+  }
+
+  async function onSubmitGeneralTask() {
+    let response = await Api.post(`background/run`, {task_name: selectedGeneralTask});
     let data = await response.json();
     if (data.status == 'ok') {
         toast.success('Task successfully started');
@@ -51,9 +72,13 @@ function BackgroundPageContainer (props) {
   }
 
   return (
-    <BackgroundPage taskOptions={taskOptions} datasets={datasets} 
-    selectedDataset={selectedDataset} selectedTask={selectedTask}
-    tasks={tasks} onSelectTask={onSelectTask} onSelectDataset={onSelectDataset} onSubmit={onSubmit}/>
+    <BackgroundPage 
+      tasks={tasks} 
+      datasetTaskOptions={datasetTaskOptions} generalTaskOptions={generalTaskOptions} datasets={datasets} 
+      selectedDataset={selectedDataset} selectedDatasetTask={selectedDatasetTask} selectedGeneralTask={selectedGeneralTask}
+      onSelectDatasetTask={onSelectDatasetTask} onSelectGeneralTask={onSelectDatasetTask} onSelectDataset={onSelectDataset} 
+      onSubmitDatasetTask={onSubmitDatasetTask} onSubmitGeneralTask={onSubmitGeneralTask}
+    />
   );
 }
 

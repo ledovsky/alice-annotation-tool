@@ -11,6 +11,8 @@ import { ResetPasswordContainer } from './containers/auth/ResetPasswordContainer
 import { ForgotPasswordContainer } from './containers/auth/ForgotPasswordContainer';
 
 import { AdminPageContainer } from './containers/AdminPageContainer';
+import { BackgroundPageContainer } from './containers/BackgroundPageContainer'
+
 import DocsPage from './components/DocsPage';
 import Datasets from './containers/DatasetsContainer';
 import DatasetView from './containers/DatasetViewContainer';
@@ -37,17 +39,13 @@ function App() {
             <Route path="/reset-password" component={ResetPasswordContainer} />
             <Route path="/forgot-password" component={ForgotPasswordContainer} />
 
-            <Route path="/admin" component={AdminPageContainer} />
+            <Route path="/background" component={BackgroundPageContainer} />
 
             <Route exact path="/datasets" component={Datasets} />
             <Route exact path="/datasets/:dataset_id" component={DatasetView} />
 
             <Route exact path="/subjects/:subject_id" component={SubjectView} />
             <Route exact path="/ic/:ic_id/annotate" component={ComponentAnnotation} />
-
-            {/* Delete */}
-            <Route exact path="/ic/:ic_id/" component={AnnotationList} />
-
 
             <Route exact path="/downloads" component={Downloads} />
             <Route path="/docs" component={DocsPage} />

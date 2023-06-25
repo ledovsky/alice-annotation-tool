@@ -159,7 +159,3 @@ class ICADetailedSerializer(serializers.ModelSerializer):
     def get_subject(self, obj):
         return obj.subject_name
 
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     data['data'] = data.pop('data_obj')
-    #     return data

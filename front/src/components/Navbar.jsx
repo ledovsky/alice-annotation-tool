@@ -32,7 +32,7 @@ function Navbar(props) {
           <NavbarItem to="/datasets">Explore datasets</NavbarItem>
           <NavbarItem to="/docs">Documentation</NavbarItem>
           <NavbarItem to="/downloads">Downloads</NavbarItem>
-          { props.isStaff && <NavbarItem key="admin" to="/admin">Admin</NavbarItem> }
+          { props.isStaff && <NavbarItem key="background" to="/background">Background</NavbarItem> }
           { props.loggedIn ?
             <NavbarItem key="logout" href="#" onClick={props.handleLogout}>{props.fullName}: Logout</NavbarItem>
             :

@@ -21,7 +21,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'run-every-hour': {
         'task': 'update-dataset-stats',
-        'schedule': crontab(hour='*', minute=0),
-        'args': (),
+        'schedule': crontab(hour='*/4', minute=0),
     },
 }

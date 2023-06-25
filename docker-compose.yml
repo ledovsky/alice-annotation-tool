@@ -51,7 +51,7 @@ services:
       - 8097:6379
     restart: always
     
-  worker1:
+  worker:
     build: ./back
     env_file: ./back/.env
     volumes:
@@ -61,6 +61,23 @@ services:
     command:
       - /bin/bash 
       - /back/entrypoint_celery.sh
+    networks:
+      - reverse-proxy
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+
+  beat:
+    build: ./back
+    env_file: ./back/.env
+    volumes:
+      - $HOME/alice_volumes/media:/django_media
+      - $HOME/alice_volumes/static:/django_static
+      - $HOME/alice_volumes/out:/django_out
+    command:
+      - /bin/bash 
+      - /back/entrypoint_celery_beat.sh
     networks:
       - reverse-proxy
     depends_on:

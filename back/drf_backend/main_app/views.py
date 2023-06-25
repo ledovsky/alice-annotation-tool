@@ -1,62 +1,16 @@
 import json
 
-from django.shortcuts import render
-from django.contrib.auth.models import User
-from django.views import View
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404
-
-from rest_framework.parsers import JSONParser, FileUploadParser
-from rest_framework import mixins
 from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework.filters import SearchFilter
-from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-from django_filters.rest_framework import DjangoFilterBackend
-
-from data_app.views import DatasetOperationsBaseView
 from data_app.models import Dataset, Subject, Annotation, ICAComponent
-from drf_backend.celery import app
 from .serializers import (
-    ICAListSerializer, ICADetailedSerializer, DatasetDetailedSerializer, AnnotationListSerializer, SubjectDetailedSerializer)
-from .models import ICAImages, ICALinks
-from .tasks import update_ic_plots
+    ICAListSerializer, ICADetailedSerializer, DatasetDetailedSerializer, 
+    AnnotationListSerializer, SubjectDetailedSerializer
+)
 from .vis import plot_components
-
-
-
-class APIRootView(APIView):
-    def get(self, request):
-        data = {
-
-            ### auth_app
-            'auth': reverse('auth', request=request),
-
-            ### data_app
-            'data-ic': reverse('data-ic', request=request),
-            'data-dataset-reset': reverse('data-dataset-reset', request=request, args=[1]),
-            'data-dataset-lock': reverse('data-dataset-lock', request=request, args=[1]),
-            'data-dataset-unlock': reverse('data-dataset-unlock', request=request, args=[1]),
-            'data-user-annotation-by-ic': reverse('data-user-annotation-by-ic', request=request, args=[1]),
-            'downloads-actual': reverse('downloads-actual', request=request),
-
-            ## main_app
-            'view-ic-list-by-subject': reverse('view-ic-list-by-subject', request=request, args=[1]),
-            'view-ic-retrieve': reverse('view-ic-retrieve', request=request, args=[1]),
-            'view-annotations-list': reverse('view-annotations-list', request=request),
-            'view-datasets-list': reverse('view-datasets-list', request=request),
-            'view-subjects-list': reverse('view-subjects-list-by-dataset', request=request, args=[1]),
-            'view-datasets-retrieve': reverse('view-datasets-retrieve', request=request, args=[1]),
-            'view-subjects-retrieve': reverse('view-subjects-retrieve', request=request, args=[1]),
-
-            'view-recalc-dataset': reverse('view-recalc-dataset', request=request, args=[1]),
-            'view-celery-list': reverse('view-celery-list', request=request),
-        }
-        return Response(data)
 
 
 class ICAListBySubjectView(APIView):
@@ -75,7 +29,6 @@ class ICAListBySubjectView(APIView):
         serializer = self.serializer_class(queryset, many=True, context=context)
         return Response(serializer.data)
         
-
 
 class ICADetailedView(generics.RetrieveAPIView):
     serializer_class = ICADetailedSerializer
@@ -112,35 +65,6 @@ class DatasetRetrieveView(generics.RetrieveAPIView):
 class SubjectRetrieveView(generics.RetrieveAPIView):
     serializer_class = SubjectDetailedSerializer
     queryset = Subject.objects.all()
-
-
-
-class RecalcDatasetView(APIView):
-    """Runs dataset recalculation in an async manner"""
-    permission_classes = [IsAdminUser]
-
-    def get_object(self, pk):
-        try:
-            return Dataset.objects.get(pk=pk)
-        except Dataset.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        dataset = self.get_object(pk)
-        update_ic_plots.delay(dataset.short_name)
-        return Response({'status': 'ok'})
-
-
-class CeleryTasksList(APIView):
-    """Lists celery tasks"""
-    permission_classes = [IsAdminUser]
-
-    def get(self, request):
-        i = app.control.inspect()
-        res = {}
-        res['active'] = i.active()
-        res['reserved'] = i.reserved()
-        return Response(res)
 
 
 class AnnotationListView(generics.ListCreateAPIView):

@@ -3,7 +3,6 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from main_app import views
 
 urlpatterns = [
-    path('', views.APIRootView.as_view()),
     path('view/annotations/list', views.AnnotationListView.as_view(), name='view-annotations-list'),
 
     path('view/datasets/list', views.DatasetListView.as_view(), name='view-datasets-list'),
@@ -13,9 +12,6 @@ urlpatterns = [
     path('view/datasets/<int:pk>', views.DatasetRetrieveView.as_view(), name='view-datasets-retrieve'),
     path('view/subjects/<int:pk>', views.SubjectRetrieveView.as_view(), name='view-subjects-retrieve'),
     path('view/ic/<int:pk>', views.ICADetailedView.as_view(), name='view-ic-retrieve'),
-
-    path('view/recalc-dataset/<int:pk>', views.RecalcDatasetView.as_view(), name='view-recalc-dataset'),
-    path('view/celery-list', views.CeleryTasksList.as_view(), name='view-celery-list'),
 
     path('view/subjects/components-plot/<int:subject_id>', views.ComponentsPlotView.as_view(), name='view-subjects-component-plot'),
 ]

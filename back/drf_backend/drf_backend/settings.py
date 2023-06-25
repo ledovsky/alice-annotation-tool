@@ -45,6 +45,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CELERY_BROKER_URL = os.environ['DJANGO_CELERY_BROKER_URL']
+CELERY_RESULT_BACKEND = os.environ['DJANGO_CELERY_BROKER_URL']
+CELERY_TASK_ALWAYS_EAGER = False
+# allows debugging without celery
+if DEBUG:
+    CELERY_TASK_ALWAYS_EAGER = True
 
 DATABASES = {
     'default': {
@@ -64,10 +69,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Application definition
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
 
 WSGI_APPLICATION = 'drf_backend.wsgi.application'
 
@@ -86,7 +89,8 @@ INSTALLED_APPS = [
     'data_app',
     'main_app',
     'auth_app',
-    'downloads_app'
+    'downloads_app',
+    'background_app',
 ]
 
 MIDDLEWARE = [
@@ -105,7 +109,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication'
     ],
-    'EXCEPTION_HANDLER': 'drf_backend.utils.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'drf_backend.utils.custom_exception_handler',
 }
 
 TEMPLATES = [

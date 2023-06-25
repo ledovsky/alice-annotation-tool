@@ -17,15 +17,20 @@ def custom_exception_handler(exc, context):
 
     # send error message if bot token is provided
     if bot_token:
-        bot = telebot.TeleBot(bot_token)
         detail = exc.args[0]
         if response:
             detail = response.data['detail']
         message = f'Status code : {response.status_code}\nError message:\n{detail}'
-        bot.send_message(bot_group_id, message)
+        bot_send(message)
 
     # Now add the HTTP status code to the response.
     if response is not None:
         response.data['status_code'] = response.status_code
 
     return response
+
+
+def bot_send(message):
+    if bot_token:
+        bot = telebot.TeleBot(bot_token)
+        bot.send_message(bot_group_id, message)

@@ -178,10 +178,3 @@ class DatasetStats(models.Model):
             stat_obj.n_components_with_images = n_components_with_images
             stat_obj.updated = datetime.datetime.now()
             stat_obj.save()
-
-
-class CeleryLog(models.Model):
-    task = models.CharField(max_length=128, null=False)
-    success = models.BooleanField(default=False)
-    dttm = models.DateTimeField(auto_now=True)
-    details = models.TextField(null=True)

@@ -1,9 +1,9 @@
 
 ## Назначение приложений DRF
 
-* main_app - содержит API для работы веб интерфейса и расчет графиков
-* data_app - содержит основные модели (датасет, субъект, компонент, аннотация) и API для загрузки данных
-* downloads_app - содержит код для сбора архива датасета и генерации ссылок для скачивания
+* main_app. Contains functionality for the annotation web app: plotting, stats, frontend-friendly views
+* data_app. Contains Dataset, Subject, IC and Annotation models. Handles the data uploading
+* downloads_app. Creates files for the downloading
 
 ### Local Dev Setup
 

@@ -23,6 +23,7 @@ import mne
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+DEBUG = False
 if 'DJANGO_ENVIRONMENT' in os.environ and os.environ['DJANGO_ENVIRONMENT'] == 'prod':
     env = 'prod'
 else:

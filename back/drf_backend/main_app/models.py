@@ -184,3 +184,4 @@ class CeleryLog(models.Model):
     task = models.CharField(max_length=128, null=False)
     success = models.BooleanField(default=False)
     dttm = models.DateTimeField(auto_now=True)
+    details = models.TextField(null=True)

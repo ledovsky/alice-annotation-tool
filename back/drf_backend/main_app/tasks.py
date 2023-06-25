@@ -6,7 +6,7 @@ from .models import ICAImages, ICALinks, ICExtended, DatasetStats, CeleryLog
 
 @app.task
 def update_ic_plots(dataset_short_name: str) -> None:
-    celery_log = CeleryLog(task='update-ic-plots')
+    celery_log = CeleryLog(task='update-ic-plots', details=f'dataset: {dataset_short_name}')
     try:
         ics = ICAComponent.objects.all()
         if dataset_short_name:
@@ -22,7 +22,7 @@ def update_ic_plots(dataset_short_name: str) -> None:
 
 @app.task
 def update_links(dataset_short_name: str) -> None:
-    celery_log = CeleryLog(task='update-links')
+    celery_log = CeleryLog(task='update-links', details=f'dataset: {dataset_short_name}')
     try:
         ICExtended.update_links(dataset_short_name)
         celery_log.success = True

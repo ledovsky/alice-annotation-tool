@@ -34,13 +34,12 @@ function AdminPageContainer (props) {
     }
     fetchData();
     updateTasks();
-    const intervalCall = setInterval(() => {
-      updateTasks();
-    }, 2000);
-    return () => {
-      // clean up
-      clearInterval(intervalCall);
-    };
+    let timer = setTimeout(
+      function run() {
+        updateTasks();
+        timer = setTimeout(run, 5000);
+      }, 5000
+    )
   }, []);
 
   async function onSelect(e) {

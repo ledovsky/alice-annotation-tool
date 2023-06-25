@@ -37,12 +37,13 @@ function BackgroundPageContainer (props) {
   }
 
   async function onSelectTask(e) {
-    setSelectedDataset(e.target.value);
+    setSelectedTask(e.target.value);
   }
 
   async function onSubmit() {
     let response = await Api.post(`background/run-dataset`, {dataset_id: selectedDataset, task_name: selectedTask});
-    if (response.json().status == 'ok') {
+    let data = await response.json();
+    if (data.status == 'ok') {
         toast.success('Task successfully started');
     } else {
         toast.error('Something has gone wrong');

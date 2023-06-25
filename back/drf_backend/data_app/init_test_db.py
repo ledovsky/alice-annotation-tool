@@ -25,6 +25,9 @@ def init_test_db():
     dataset = Dataset(short_name='test_dataset', full_name='Test dataset')
     dataset.save()
 
+    dataset = Dataset(short_name='test_dataset_2', full_name='Test dataset 2')
+    dataset.save()
+
     # Load ica data using serializer
     with open(os.path.join(settings.BASE_DIR, 'data_app/test_data/data_list.json')) as f:
         data_list = json.loads(f.read())

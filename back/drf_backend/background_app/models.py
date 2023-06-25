@@ -9,5 +9,4 @@ class BackgroundTask(models.Model):
         max_length=128,
         choices=(('in progress', 'in progress'), ('success', 'success'), ('failed', 'failed'))
     )
-    dttm = models.DateTimeField(auto_now=True)
     details = models.TextField(null=True)

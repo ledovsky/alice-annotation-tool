@@ -70,6 +70,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Application definition
 
 LANGUAGE_CODE = 'en-us'
+USE_TZ = True
+TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 

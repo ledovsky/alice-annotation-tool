@@ -15,8 +15,8 @@ function BackgroundPage (props) {
   const task_rows = props.tasks.map((row, idx) =>
     <tr key={idx}>
       <td className="border px-4 py-2">{row.task}</td>
-      <td className="border px-4 py-2">{Moment(row.created).format('YYYY-MM-D hh:mm:ss')}</td>
-      <td className="border px-4 py-2">{Moment(row.updated).format('YYYY-MM-D hh:mm:ss')}</td>
+      <td className="border px-4 py-2">{Moment(row.created).format('YYYY-MM-DD H:mm:ss')}</td>
+      <td className="border px-4 py-2">{Moment(row.updated).format('YYYY-MM-DD H:mm:ss')}</td>
       <td className="border px-4 py-2">{row.status}</td>
       <td className="border px-4 py-2">{row.details}</td>
     </tr>

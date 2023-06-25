@@ -18,7 +18,7 @@ def custom_exception_handler(exc, context):
     # send error message if bot token is provided
     if bot_token:
         detail = exc.args[0]
-        if response:
+        if response and 'detail' in response.data:
             detail = response.data['detail']
         message = f'Status code : {response.status_code}\nError message:\n{detail}'
         bot_send(message)
